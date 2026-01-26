@@ -1,17 +1,22 @@
 # PII Detection & Redaction Evaluation Framework
 
-A benchmarking tool to measure the accuracy of PII detection systems using Precision, Recall, and F1-Score metrics.
+A tool to benchmark PII detection systems by measuring Precision, Recall, and F1-Score.
 
 ## What does it do?
 
-- Compare your PII detection system's output against ground truth labels
-- Calculate accuracy metrics (Precision, Recall, F1-Score)
-- Identify false positives and false negatives
-- Generate detailed error reports
+This framework helps you measure how accurate your PII detection system is. You give it:
+- Your test documents with labeled sensitive data (ground truth)
+- What your system detected (predictions)
+
+It calculates:
+- How accurate your detections are (Precision)
+- How complete your detections are (Recall)
+- Overall performance score (F1)
+- What mistakes were made (false positives/negatives)
 
 ## Quick Start
 
-### Option 1: Using Docker (Recommended)
+### Option 1: Using Docker (Easiest)
 
 ```bash
 git clone https://github.com/yourusername/pii-benchmark-framework.git
@@ -19,7 +24,7 @@ cd pii-benchmark-framework
 docker-compose up --build
 ```
 
-Open browser at `http://localhost:8501`
+Open `http://localhost:8501` in your browser.
 
 ### Option 2: Local Setup
 
@@ -27,12 +32,12 @@ Open browser at `http://localhost:8501`
 git clone https://github.com/yourusername/pii-benchmark-framework.git
 cd pii-benchmark-framework
 python -m venv venv
-venv\Scripts\activate  # Windows (macOS/Linux: source venv/bin/activate)
+venv\Scripts\activate  # On Windows
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Open browser at `http://localhost:8501`
+Then go to `http://localhost:8501`
 
 ## Project Structure
 
@@ -49,13 +54,18 @@ Open browser at `http://localhost:8501`
 └── requirements.txt        # Python dependencies
 ```
 
-## Usage
+## How to Use
 
-Upload two JSON files:
-1. **Ground Truth** - Human-verified labels
-2. **Predictions** - Your system's output
+**Step 1:** Upload your files
+- Ground truth JSON (what should be detected)
+- Predictions JSON (what your system detected)
 
-Click "Run Evaluation" to see results.
+**Step 2:** Pick a matching strategy
+- **Strict** - Positions must match exactly (for production testing)
+- **Lenient** - 50%+ overlap is okay (for development)
+- **Token-Level** - Matches at word level
+
+**Step 3:** Click "Run Evaluation" and view results
 
 ### Input Format
 
@@ -101,4 +111,5 @@ pytest
 
 ---
 
-**Author:** [Your Name] - Internship Assessment 2026
+**Built for:** Internship Assessment Project  
+**Duration:** 3-day sprint (Jan 27-29, 2026)
