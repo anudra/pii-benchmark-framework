@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  pii-framework:
+    build: .
+    container_name: pii-evaluation-framework
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./database:/app/database
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///database/evaluations.db
+    restart: unless-stopped

@@ -1,0 +1,19 @@
+{
+  "predictions": [
+    {
+      "entity_type": "EMAIL",
+      "start": 12,
+      "end": 33
+    },
+    {
+      "entity_type": "PAN",
+      "start": 55,
+      "end": 66
+    },
+    {
+      "entity_type": "PHONE",
+      "start": 82,
+      "end": 97
+    }
+  ]
+}

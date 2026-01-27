@@ -1,309 +1,365 @@
-# System Architecture
+# 🏗️ System Architecture
 
 ## Overview
 
-This is a **web-based evaluation tool** that compares PII detection system outputs against ground truth to measure accuracy.
+This is a **web-based evaluation framework** that compares PII detection + redaction system outputs against ground truth to measure accuracy, quality, and reliability.
+
+**Core Purpose:** Judge / Examiner for PII systems (NOT a detector itself)
+
+---
+
+## 🎨 High-Level System Architecture
 
 ```mermaid
 graph TB
-    subgraph "User Interface (Streamlit)"
-        A[File Upload]
-        B[Configuration Panel]
-        C[Metrics Dashboard]
-        D[Error Reports]
-    end
+    User([👤 User]) --> Frontend[🌐 Frontend<br/>HTML/CSS/JS]
+    Frontend --> API[⚙️ Backend API<br/>FastAPI]
+    API --> Engine[🔍 Evaluation Engine]
+    Engine --> DB[(💾 Database<br/>SQLite)]
+    DB --> Frontend
     
-    subgraph "Evaluation Engine (Python)"
-        E[Input Validator]
-        F[Span Matcher]
-        G[Metrics Calculator]
-        H[Error Analyzer]
-    end
-    
-    subgraph "Data Layer"
-        I[Ground Truth JSON]
-        J[Predictions JSON]
-        K[Results JSON/CSV]
-    end
-    
-    A --> E
-    B --> E
-    E --> F
-    F --> G
-    G --> H
-    H --> C
-    H --> D
-    I --> E
-    J --> E
-    H --> K
+    style User fill:#e3f2fd
+    style Frontend fill:#fff3e0
+    style API fill:#e8f5e9
+    style Engine fill:#ffe0b2
+    style DB fill:#fce4ec
 ```
 
 ---
 
-## Component Breakdown
-
-### 1. Frontend Layer (Streamlit)
-
-**What users see and interact with.**
-
-```
-app.py (Main Dashboard)
-├── Upload Section: Drop your JSON files here
-├── Config Panel: 
-│   ├── Matching Strategy Selector ⚙️
-│   │   ○ Strict (Exact Match)
-│   │   ○ Lenient (Partial Match - 50% IoU)
-│   │   ○ Token-Level Match
-│   └── Minimum Confidence Threshold (optional)
-├── Run Button: Start evaluation
-└── Results Display: Metrics, charts, errors
-```
-
-**Pages:**
-- `pages/1_📊_Evaluation.py` - Main metrics view
-- `pages/2_📈_Metrics.py` - Charts and visualizations  
-- `pages/3_🔍_Error_Analysis.py` - Detailed error breakdown
-- `pages/4_📄_Reports.py` - Export functionality
-
----
-
-### 2. Backend Layer (Evaluation Logic)
-
-**The brain of the system.**
-
-#### Module: Span Matcher (`evaluator/span_matcher.py`)
-
-**Job:** Compare predicted entities with ground truth entities.
+## 🔄 Simple User Flow
 
 ```mermaid
-graph LR
-    A[Ground Truth: EMAIL 10-28] --> C{Matching Algorithm}
-    B[Prediction: EMAIL 10-28] --> C
-    C -->|Exact Match| D[✅ Match]
-    C -->|Partial Overlap| E[⚠️ Partial]
-    C -->|No Overlap| F[❌ No Match]
+flowchart LR
+    A[📁 Upload Files] --> B[⚙️ Evaluate]
+    B --> C[📊 View Results]
+    C --> D[💾 Save to History]
+    D --> E{What Next?}
+    E -->|Compare| F[🔄 Compare Models]
+    E -->|Export| G[📥 Download Report]
+    E -->|New Test| A
 ```
 
-**User-Selectable Strategies:**
+---
 
-1. **Strict Mode (Exact Match)**
-   - Character positions must match perfectly
-   - Entity type must match
-   - Use for: Production validation, compliance audits
-
-2. **Lenient Mode (Partial Match - IoU)**
-   - Intersection over Union (IoU) ≥ 50%
-   - Allows slight misalignment
-   - Use for: Model development, testing
-
-3. **Token-Level Mode**
-   - Matches at word boundaries
-   - Ignores whitespace differences
-   - Use for: Text-based NLP models
-
-#### Module: Metrics Calculator (`evaluator/metrics.py`)
-
-**Job:** Compute Precision, Recall, F1-Score.
-
-```python
-# After matching, we count:
-TP = Correct detections
-FP = Wrong detections  
-FN = Missed entities
-
-Precision = TP / (TP + FP)  # Accuracy of what you found
-Recall = TP / (TP + FN)     # Completeness of what you found
-F1 = 2 * (Precision * Recall) / (Precision + Recall)
-```
-
-#### Module: Error Analyzer (`evaluator/engine.py`)
-
-**Job:** Categorize what went wrong.
+## 🧩 System Components
 
 ```mermaid
-graph TD
-    A[Entity Mismatch] --> B{Type?}
-    B -->|Missed Detection| C[False Negative]
-    B -->|Wrong Detection| D[False Positive]
-    B -->|Wrong Type| E[Misclassification]
+graph TB
+    subgraph Input["📥 Input Layer"]
+        Files[Original & Redacted Files<br/>Ground Truth & Predictions]
+    end
+    
+    subgraph Processing["⚙️ Processing Layer"]
+        Validate[Validate Inputs]
+        Match[Match Entities]
+        Calculate[Calculate Metrics]
+        Check[Check Redaction]
+    end
+    
+    subgraph Output["📤 Output Layer"]
+        Display[Display Results]
+        Store[Store History]
+        Export[Export Reports]
+    end
+    
+    Files --> Validate
+    Validate --> Match
+    Match --> Calculate
+    Calculate --> Check
+    Check --> Display
+    Display --> Store
+    Display --> Export
 ```
 
 ---
 
-### 3. Data Models (Pydantic Schemas)
-
-**Ensures data is structured correctly.**
-
-```python
-# models/ground_truth.py
-class Entity:
-    entity_type: str  # "EMAIL", "PAN", "PHONE"
-    start: int        # Character position start
-    end: int          # Character position end
-    text: str         # Actual text of entity
-
-class GroundTruth:
-    document_id: str
-    text: str
-    entities: List[Entity]
-```
-
-```python
-# models/results.py
-class EvaluationResult:
-    overall_metrics: Metrics
-    per_entity_metrics: List[EntityMetrics]
-    false_positives: List[Error]
-    false_negatives: List[Error]
-```
-
----
-
-## Data Flow
+## 🔄 Evaluation Flow
 
 ```mermaid
 sequenceDiagram
     participant User
-    participant UI as Streamlit UI
-    participant Val as Validator
-    participant Matcher as Span Matcher
-    participant Calc as Metrics Calculator
-    participant DB as Results Storage
-
-    User->>UI: Upload Ground Truth + Predictions
-    UI->>Val: Validate JSON format
-    Val->>Matcher: Pass validated data
-    Matcher->>Matcher: Align entities (TP/FP/FN)
-    Matcher->>Calc: Send classification results
-    Calc->>Calc: Compute Precision/Recall/F1
-    Calc->>UI: Return metrics
-    UI->>User: Display dashboard
-    UI->>DB: Export JSON/CSV report
+    participant Frontend
+    participant Backend
+    participant Database
+    
+    User->>Frontend: Upload 4 files
+    Frontend->>Backend: Send files
+    Backend->>Backend: Evaluate
+    Backend->>Database: Save results
+    Database->>Frontend: Return results
+    Frontend->>User: Show metrics & charts
 ```
 
 ---
 
-## Evaluation Workflow (Step-by-Step)
+## 💾 Database Structure
+
+```mermaid
+erDiagram
+    EVALUATIONS ||--o{ INPUT_FILES : contains
+    EVALUATIONS ||--o{ RESULTS : contains
+    EVALUATIONS ||--o{ ERRORS : contains
+    
+    EVALUATIONS {
+        int id
+        text timestamp
+        text model_name
+        text mode
+    }
+    
+    INPUT_FILES {
+        int id
+        text original_text
+        text redacted_text
+    }
+    
+    RESULTS {
+        int id
+        int true_positives
+        int false_positives
+        int false_negatives
+    }
+    
+    ERRORS {
+        int id
+        text error_type
+        text description
+    }
+```
+
+---
+
+## 📊 Evaluation Process Flow
 
 ```mermaid
 flowchart TD
-    Start([User uploads files]) --> Validate{Valid JSON?}
-    Validate -->|No| Error[Show error message]
-    Validate -->|Yes| Load[Load data into memory]
-    Load --> Match[Match predicted spans with ground truth]
-    Match --> Classify[Classify as TP/FP/FN]
-    Classify --> Metrics[Calculate Precision/Recall/F1]
-    Metrics --> Errors[Generate error reports]
-    Errors --> Display[Display results in dashboard]
-    Display --> Export{User wants export?}
-    Export -->|Yes| Save[Download JSON/CSV]
-    Export -->|No| End([Done])
-    Save --> End
+    Start([Upload Files]) --> Check{Files Valid?}
+    Check -->|No| Error[Show Error]
+    Check -->|Yes| Match[Match Entities]
+    Match --> Calc[Calculate Metrics]
+    Calc --> Redact[Check Redaction]
+    Redact --> Visual[Generate Visualizations]
+    Visual --> Save[Save to Database]
+    Save --> Show[Display Results]
+    Show --> Done([Done])
+    Error --> Done
 ```
 
 ---
 
-## Folder Structure
+## 📦 Key Components
+
+### 1. Frontend Layer
+
+**Pages:**
+
+| Page | Purpose |
+|------|---------|
+| Upload | File upload & mode selection |
+| Results | Display metrics, charts, diff view |
+| History | Table of past evaluations |
+| Compare | Side-by-side model comparison |
+
+---
+
+### 2. Backend Layer
+
+**API Endpoints:**
+
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /api/evaluate` | Run evaluation |
+| `GET /api/history` | Get all evaluations |
+| `GET /api/evaluation/{id}` | Get specific results |
+| `DELETE /api/evaluation/{id}` | Delete evaluation |
+| `GET /api/compare/{id1}/{id2}` | Compare 2 evaluations |
+| `GET /api/export/{id}/json` | Export as JSON |
+| `GET /api/export/{id}/pdf` | Export as PDF |
+
+---
+
+**Core Modules:**
+
+| Module | Responsibility |
+|--------|---------------|
+| Input Validator | Validate files & JSON format |
+| Span Matcher | Compare entities (strict/lenient) |
+| Metrics Calculator | Calculate P, R, F1, Accuracy |
+| Redaction Checker | Check 5 redaction categories |
+| Error Analyzer | Categorize errors |
+| Diff Generator | Create color-coded diff |
+| Report Generator | Export JSON/PDF reports |
+
+---
+
+### 3. Database Layer
+
+**4 Main Tables:**
+
+| Table | Stores |
+|-------|--------|
+| evaluations | Timestamp, model name, mode, metrics |
+| input_files | Original & redacted text, JSON labels |
+| results | TP, FP, FN, TN, confusion matrix |
+| errors | Error type, position, description |
+
+---
+
+## 📁 Project File Structure
 
 ```
 pii-benchmark-framework/
 │
-├── app.py                          # Main Streamlit entry point
-│
-├── evaluator/                      # Core evaluation logic
+├── backend/                         # Backend application
 │   ├── __init__.py
-│   ├── engine.py                   # Main orchestrator
-│   ├── span_matcher.py             # Entity matching algorithms
-│   ├── metrics.py                  # Precision/Recall/F1 calculation
-│   └── redaction_validator.py      # Check if redaction worked
+│   ├── main.py                      # FastAPI application entry point
+│   │
+│   ├── api/                         # API layer
+│   │   ├── __init__.py
+│   │   ├── routes.py                # API endpoint definitions
+│   │   └── models.py                # Pydantic request/response models
+│   │
+│   ├── core/                        # Core business logic
+│   │   ├── __init__.py
+│   │   ├── validator.py             # Input validation logic
+│   │   ├── matcher.py               # Entity span matching (strict/lenient)
+│   │   ├── metrics.py               # Precision, Recall, F1 calculation
+│   │   ├── redaction_checker.py     # Redaction verification logic
+│   │   ├── error_analyzer.py        # Error categorization & reporting
+│   │   ├── diff_generator.py        # Color-coded diff HTML generation
+│   │   └── report_generator.py      # JSON/PDF export functionality
+│   │
+│   ├── database/                    # Database layer
+│   │   ├── __init__.py
+│   │   ├── db.py                    # SQLite connection & session management
+│   │   └── models.py                # SQLAlchemy ORM models
+│   │
+│   └── utils/                       # Utility functions
+│       ├── __init__.py
+│       └── helpers.py               # Common helper functions
 │
-├── models/                         # Data structures
+├── frontend/                        # Frontend application
+│   ├── index.html                   # Upload page (main entry)
+│   ├── results.html                 # Evaluation results display
+│   ├── history.html                 # Evaluation history table
+│   ├── compare.html                 # Model comparison page
+│   │
+│   ├── css/                         # Stylesheets
+│   │   └── styles.css               # Global styles
+│   │
+│   └── js/                          # JavaScript modules
+│       ├── upload.js                # File upload & form handling
+│       ├── results.js               # Results rendering & charts
+│       ├── history.js               # History table management
+│       └── compare.js               # Comparison logic & visualization
+│
+├── tests/                           # Test suite
 │   ├── __init__.py
-│   ├── ground_truth.py             # Ground truth schema
-│   ├── prediction.py               # Prediction schema
-│   └── results.py                  # Evaluation result schema
+│   ├── test_validator.py            # Validator tests
+│   ├── test_matcher.py              # Span matcher tests
+│   ├── test_metrics.py              # Metrics calculation tests
+│   ├── test_redaction.py            # Redaction checker tests
+│   └── test_api.py                  # API endpoint tests
 │
-├── utils/                          # Helper functions
-│   ├── __init__.py
-│   ├── validators.py               # Input validation
-│   ├── file_handlers.py            # JSON/CSV I/O
-│   └── text_diff.py                # Visual diff generator
+├── data/                            # Sample & test data
+│   └── sample/                      # Sample evaluation files
+│       ├── original.txt             # Sample original text
+│       ├── redacted.txt             # Sample redacted text
+│       ├── ground_truth.json        # Sample ground truth labels
+│       └── predictions.json         # Sample prediction labels
 │
-├── pages/                          # Streamlit multi-page app
-│   ├── 1_📊_Evaluation.py
-│   ├── 2_📈_Metrics.py
-│   ├── 3_🔍_Error_Analysis.py
-│   └── 4_📄_Reports.py
+├── database/                        # Database storage
+│   └── evaluations.db               # SQLite database file
 │
-├── data/                           # Sample datasets
-│   ├── sample_ground_truth.json
-│   └── sample_predictions.json
-│
-├── tests/                          # Unit tests
-│   ├── unit/
-│   └── integration/
-│
-├── Dockerfile                      # Docker configuration
-├── docker-compose.yml              # Docker orchestration
-├── requirements.txt                # Python dependencies
-└── README.md                       # Setup instructions
+├── Dockerfile                       # Docker image definition
+├── docker-compose.yml               # Docker Compose configuration
+├── requirements.txt                 # Python dependencies
+├── .gitignore                       # Git ignore rules
+├── README.md                        # Project documentation
+├── PRODUCT_SPEC.md                  # Product specification
+├── architecture.md                  # System architecture (this file)
+└── project_plan.md                  # Development plan
 ```
 
 ---
 
-## Technology Choices
+## 🎨 Design Highlights
 
-| Component | Technology | Why? |
-|-----------|-----------|------|
-| **Frontend** | Streamlit | Fast dashboard development, Python-only |
-| **Backend** | Python 3.9+ | Rich ML libraries, easy to deploy |
-| **Data Validation** | Pydantic | Type safety, auto-validation |
-| **Metrics** | scikit-learn | Industry-standard implementations |
-| **Charts** | Plotly | Interactive visualizations |
-| **Deployment** | Docker | Portable, consistent environment |
+### Evaluation Modes
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| **Strict** | Exact position match | Production testing |
+| **Lenient** | 50%+ overlap allowed | Development/debugging |
+
+### Redaction Categories
+
+| Category | Description | Color Code |
+|----------|-------------|------------|
+| ✅ Correct | Fully masked | Green |
+| ❌ Leak | Not redacted | Red |
+| ⚠️ Over | Non-sensitive masked | Yellow |
+| 🔶 Under | Partially masked | Orange |
+| 🟡 Semi | Mixed masking | Light Orange |
+
+### Key Metrics
+
+- **Precision**: Accuracy of detections
+- **Recall**: Coverage of actual entities
+- **F1-Score**: Balanced measure
+- **Accuracy**: Overall correctness
 
 ---
 
-## Deployment Architecture
+## 🔧 Technology Stack
+
+### Core Technologies
+
+| Layer | Technology | Version | Purpose |
+|-------|------------|---------|---------|
+| **Frontend** | HTML5 | - | Page structure |
+| | CSS3 | - | Styling & layout |
+| | JavaScript (ES6+) | - | Client-side logic |
+| | Chart.js | 4.x | Data visualization |
+| **Backend** | Python | 3.9+ | Core language |
+| | FastAPI | 0.100+ | Web framework & API |
+| | Pydantic | 2.x | Data validation |
+| | Uvicorn | 0.23+ | ASGI server |
+| **Database** | SQLite | 3.x | Data persistence |
+| **Testing** | pytest | 7.x | Unit & integration tests |
+| **Metrics** | scikit-learn | 1.3+ | Metric calculations |
+| **PDF Export** | WeasyPrint | 60+ | PDF generation |
+| **DevOps** | Docker | 24.x | Containerization |
+| | Docker Compose | 2.x | Multi-container orchestration |
+
+### Python Libraries
+
+```
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+pydantic>=2.0.0
+scikit-learn>=1.3.0
+weasyprint>=60.0
+chart.js (via CDN)
+```
+
+---
+
+## 🚀 Deployment
 
 ```mermaid
-graph TD
-    A[Developer] -->|git push| B[GitHub Repository]
-    B -->|docker build| C[Docker Image]
-    C -->|docker run| D[Container]
-    D -->|Port 8501| E[Streamlit App]
-    E -->|Browser| F[User Access]
+graph LR
+    User([👤 User]) -->|localhost:8000| Docker[🐳 Docker Container]
+    Docker --> App[FastAPI App]
+    App --> Files[Static Files]
+    App --> DB[(Database)]
 ```
 
-**Commands:**
-```bash
-# Build Docker image
-docker-compose up --build
-
-# Access application
-http://localhost:8501
-```
+**Simple Docker Setup:**
+- Single container runs everything
+- Port 8000 for web access
+- SQLite database in volume (persistent storage)
+- Easy one-command deployment
 
 ---
-
-## Extensibility Points
-
-### Want to add new features?
-
-1. **New Entity Type**: Just add to `entity_types` list (no code change needed)
-2. **New Matching Strategy**: Implement in `span_matcher.py`
-3. **New Metric**: Add function in `metrics.py`
-4. **New Export Format**: Extend `file_handlers.py`
-
----
-
-## Security & Privacy
-
-- ✅ All processing happens locally (no external API calls)
-- ✅ No data is stored permanently (session-based only)
-- ✅ Uploaded files stay in browser session
-- ✅ Docker isolation for production deployment
-
----
-
-**See [project_plan.md](project_plan.md) for implementation timeline.**

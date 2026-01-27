@@ -1,0 +1,10 @@
+/* Global styles for the application */
+
+/* Color scheme for redaction status:
+   - Green (#4CAF50): Correct redaction
+   - Red (#F44336): Leak (not redacted)
+   - Yellow (#FFC107): Over-redaction
+   - Orange (#FF9800): Under-redaction
+   - Light Orange (#FFB74D): Semi-redaction
+*/
+
