@@ -1,0 +1,29 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+venv/
+.env/
+.env.*
+
+.git/
+.gitignore
+
+.vscode/
+.idea/
+
+*.log
+
+# Data outputs
+*.csv
+*.parquet
+*.sqlite
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,1 +1,18 @@
-[]
+[
+	{
+		"document_id": "doc_001",
+		"text": "Hello,\n\nMy name is Ramesh Kumar.\nMy email is ramesh.kumar@gmail.com\nMy PAN number is ABCDE1234F.\n\nRegards,\nRamesh\n",
+		"detected_entities": [
+			{
+				"entity_type": "EMAIL",
+				"start": 45,
+				"end": 67
+			},
+			{
+				"entity_type": "PHONE",
+				"start": 85,
+				"end": 95
+			}
+		]
+	}
+]

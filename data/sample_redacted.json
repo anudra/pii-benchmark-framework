@@ -1,1 +1,10 @@
-[]
+[
+	{
+		"text": "My PAN is ABCDE1234F and email is user@example.com",
+		"redacted_text": "My PAN is [REDACTED] and email is [REDACTED]",
+		"redacted_spans": [
+			{"start": 10, "end": 20, "entity_type": "PAN", "redaction_text": "[REDACTED]"},
+			{"start": 35, "end": 51, "entity_type": "EMAIL", "redaction_text": "[REDACTED]"}
+		]
+	}
+]
