@@ -143,13 +143,45 @@ def generate_pdf_report(evaluation_data: Dict[str, Any]) -> bytes:
             </div>
             
             <h3>Detection Confusion Matrix</h3>
-            <table>
-                <tr><th>Metric</th><th>Value</th></tr>
-                <tr><td>True Positives</td><td>{evaluation_data.get('confusion_matrix', {}).get('TP', 0)}</td></tr>
-                <tr><td>True Negatives</td><td>{evaluation_data.get('confusion_matrix', {}).get('TN', 0)}</td></tr>
-                <tr><td>False Positives</td><td>{evaluation_data.get('confusion_matrix', {}).get('FP', 0)}</td></tr>
-                <tr><td>False Negatives</td><td>{evaluation_data.get('confusion_matrix', {}).get('FN', 0)}</td></tr>
-            </table>
+            <div style="display: inline-block; border: 2px solid #333; margin: 1rem 0;">
+                <table style="border-collapse: collapse; text-align: center;">
+                    <tr>
+                        <td colspan="2" rowspan="2" style="border: none;"></td>
+                        <th colspan="2" style="padding: 0.5rem; border-bottom: 2px solid #333;">Predicted</th>
+                    </tr>
+                    <tr>
+                        <th style="padding: 0.5rem; border-bottom: 2px solid #333; border-left: 2px solid #333;">Positive</th>
+                        <th style="padding: 0.5rem; border-bottom: 2px solid #333; border-left: 1px solid #ddd;">Negative</th>
+                    </tr>
+                    <tr>
+                        <th rowspan="2" style="padding: 0.5rem; border-right: 2px solid #333; writing-mode: vertical-lr; transform: rotate(180deg);">Actual</th>
+                        <th style="padding: 0.5rem; border-right: 2px solid #333; border-bottom: 1px solid #ddd;">Positive</th>
+                        <td style="padding: 1rem 2rem; background: #c8e6c9; font-weight: bold; font-size: 1.2rem; border-left: 2px solid #333; border-bottom: 1px solid #ddd;">
+                            <div style="font-size: 0.8rem; color: #2e7d32; margin-bottom: 0.25rem;">TP</div>
+                            <div>{evaluation_data.get('confusion_matrix', {}).get('TP', 0)}</div>
+                        </td>
+                        <td style="padding: 1rem 2rem; background: #ffccbc; font-weight: bold; font-size: 1.2rem; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                            <div style="font-size: 0.8rem; color: #c62828; margin-bottom: 0.25rem;">FN</div>
+                            <div>{evaluation_data.get('confusion_matrix', {}).get('FN', 0)}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="padding: 0.5rem; border-right: 2px solid #333;">Negative</th>
+                        <td style="padding: 1rem 2rem; background: #ffccbc; font-weight: bold; font-size: 1.2rem; border-left: 2px solid #333;">
+                            <div style="font-size: 0.8rem; color: #c62828; margin-bottom: 0.25rem;">FP</div>
+                            <div>{evaluation_data.get('confusion_matrix', {}).get('FP', 0)}</div>
+                        </td>
+                        <td style="padding: 1rem 2rem; background: #c8e6c9; font-weight: bold; font-size: 1.2rem; border-left: 1px solid #ddd;">
+                            <div style="font-size: 0.8rem; color: #2e7d32; margin-bottom: 0.25rem;">TN</div>
+                            <div>{evaluation_data.get('confusion_matrix', {}).get('TN', 0)}</div>
+                        </td>
+                    </tr>
+                </table>
+                <div style="margin-top: 0.5rem; padding: 0.5rem; font-size: 0.9rem; color: #666;">
+                    <strong>TP:</strong> True Positive (Correctly identified as PII) &nbsp; <strong>TN:</strong> True Negative (Correctly identified as non-PII)<br>
+                    <strong>FP:</strong> False Positive (Wrongly identified as PII) &nbsp; <strong>FN:</strong> False Negative (Missed PII)
+                </div>
+            </div>
         </div>
         
         <div class="section">

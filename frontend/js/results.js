@@ -36,16 +36,48 @@ async function loadResults(id) {
         document.getElementById('f1').textContent = (data.metrics.f1_score * 100).toFixed(2) + '%';
         document.getElementById('accuracy').textContent = (data.metrics.accuracy * 100).toFixed(2) + '%';
         
-        // Display confusion matrix
+        // Display confusion matrix in 2x2 format
         const cm = data.confusion_matrix;
         document.getElementById('confusionMatrix').innerHTML = `
-            <table>
-                <tr><th>Metric</th><th>Value</th></tr>
-                <tr><td>True Positives</td><td>${cm.TP}</td></tr>
-                <tr><td>True Negatives</td><td>${cm.TN}</td></tr>
-                <tr><td>False Positives</td><td>${cm.FP}</td></tr>
-                <tr><td>False Negatives</td><td>${cm.FN}</td></tr>
-            </table>
+            <div style="display: inline-block; border: 2px solid #333; margin: 1rem 0;">
+                <table style="border-collapse: collapse; text-align: center;">
+                    <tr>
+                        <td colspan="2" rowspan="2" style="border: none;"></td>
+                        <th colspan="2" style="padding: 0.5rem; border-bottom: 2px solid #333;">Predicted</th>
+                    </tr>
+                    <tr>
+                        <th style="padding: 0.5rem; border-bottom: 2px solid #333; border-left: 2px solid #333;">Positive</th>
+                        <th style="padding: 0.5rem; border-bottom: 2px solid #333; border-left: 1px solid #ddd;">Negative</th>
+                    </tr>
+                    <tr>
+                        <th rowspan="2" style="padding: 0.5rem; border-right: 2px solid #333; writing-mode: vertical-lr; transform: rotate(180deg);">Actual</th>
+                        <th style="padding: 0.5rem; border-right: 2px solid #333; border-bottom: 1px solid #ddd;">Positive</th>
+                        <td style="padding: 1rem 2rem; background: #c8e6c9; font-weight: bold; font-size: 1.2rem; border-left: 2px solid #333; border-bottom: 1px solid #ddd;">
+                            <div style="font-size: 0.8rem; color: #2e7d32; margin-bottom: 0.25rem;">TP</div>
+                            <div>${cm.TP}</div>
+                        </td>
+                        <td style="padding: 1rem 2rem; background: #ffccbc; font-weight: bold; font-size: 1.2rem; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                            <div style="font-size: 0.8rem; color: #c62828; margin-bottom: 0.25rem;">FN</div>
+                            <div>${cm.FN}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="padding: 0.5rem; border-right: 2px solid #333;">Negative</th>
+                        <td style="padding: 1rem 2rem; background: #ffccbc; font-weight: bold; font-size: 1.2rem; border-left: 2px solid #333;">
+                            <div style="font-size: 0.8rem; color: #c62828; margin-bottom: 0.25rem;">FP</div>
+                            <div>${cm.FP}</div>
+                        </td>
+                        <td style="padding: 1rem 2rem; background: #c8e6c9; font-weight: bold; font-size: 1.2rem; border-left: 1px solid #ddd;">
+                            <div style="font-size: 0.8rem; color: #2e7d32; margin-bottom: 0.25rem;">TN</div>
+                            <div>${cm.TN}</div>
+                        </td>
+                    </tr>
+                </table>
+                <div style="margin-top: 0.5rem; padding: 0.5rem; font-size: 0.9rem; color: #666;">
+                    <strong>TP:</strong> True Positive (Correctly identified as PII) &nbsp; <strong>TN:</strong> True Negative (Correctly identified as non-PII)<br>
+                    <strong>FP:</strong> False Positive (Wrongly identified as PII) &nbsp; <strong>FN:</strong> False Negative (Missed PII)
+                </div>
+            </div>
         `;
         
         // Render chart
