@@ -1,15 +1,7 @@
-// Results rendering and visualization
-// Fetches evaluation results and renders charts, metrics, and diff view
-
 let evaluationId = null;
 
-// Get evaluation ID from URL
 const urlParams = new URLSearchParams(window.location.search);
-evaluationId = urlParams.get('id');
-
-if (!evaluationId) {
-    evaluationId = localStorage.getItem('lastEvaluationId');
-}
+evaluationId = urlParams.get('id') || localStorage.getItem('lastEvaluationId');
 
 if (!evaluationId) {
     alert('No evaluation ID found');

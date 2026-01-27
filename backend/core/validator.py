@@ -1,11 +1,6 @@
-# Input validation logic
-# Validates uploaded files, JSON schemas, and entity spans
-
 from typing import Dict, Any, List, Tuple
 
-
 def validate_text_file(content: str) -> Tuple[bool, str]:
-    """Validate text file content"""
     if not content or not content.strip():
         return False, "Text file is empty"
     return True, "Valid"

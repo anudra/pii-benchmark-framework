@@ -1,12 +1,6 @@
-# Redaction verification logic
-# Checks if detected entities were properly redacted
-# Categorizes: correct, leak, over, under, semi-redacted
-
 from typing import Dict, List, Any, Tuple
 
-
 def check_redaction_status(original: str, redacted: str, start: int, end: int) -> str:
-    """Check how a span was redacted"""
     
     original_span = original[start:end]
     redacted_span = redacted[start:end]

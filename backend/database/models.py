@@ -1,6 +1,3 @@
-# SQLAlchemy ORM models
-# Defines database tables: evaluations, input_files, results, errors
-
 from sqlalchemy import Column, Integer, String, Text, Float, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship

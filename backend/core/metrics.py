@@ -1,13 +1,7 @@
-# Metrics calculation module
-# Computes Precision, Recall, F1-Score, Accuracy
-# Generates confusion matrix and per-entity metrics
-
 from typing import Dict, List, Any
 from collections import defaultdict
 
-
 def calculate_metrics(match_results: Dict[str, Any], text_length: int) -> Dict[str, Any]:
-    """Calculate all evaluation metrics"""
     
     tp = len(match_results["true_positives"])
     fp = len(match_results["false_positives"])

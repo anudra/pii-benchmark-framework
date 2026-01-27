@@ -1,6 +1,3 @@
-# Pydantic models for API request/response validation
-# Defines schemas for input validation and output serialization
-
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime

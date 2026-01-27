@@ -1,13 +1,6 @@
-# Error analysis and categorization
-# Categorizes false positives, false negatives, and redaction errors
-# Generates detailed error reports with examples
-
 from typing import Dict, List, Any
 
-
-def analyze_errors(match_results: Dict[str, Any], 
-                  redaction_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Analyze and categorize all errors"""
+def analyze_errors(match_results: Dict[str, Any], redaction_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
     
     errors = []
     

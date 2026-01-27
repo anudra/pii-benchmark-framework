@@ -1,38 +1,26 @@
-// Comparison logic and visualization
-// Load evaluations list and handle comparison
-
 let evaluations = [];
 
-// Load evaluations on page load
 window.addEventListener('DOMContentLoaded', init);
 
 async function init() {
-    // Check if IDs are passed via URL parameters (from history page)
     const urlParams = new URLSearchParams(window.location.search);
     const id1 = urlParams.get('id1');
     const id2 = urlParams.get('id2');
     
     if (id1 && id2) {
-        // Direct comparison from history page
-        console.log(`Direct comparison requested: ${id1} vs ${id2}`);
         document.getElementById('selectionForm').style.display = 'none';
         loadComparison(id1, id2);
     } else {
-        // Show dropdown selection
         await loadEvaluations();
     }
 }
 
 async function loadEvaluations() {
     try {
-        console.log('Fetching evaluations from /api/history...');
         const response = await fetch('/api/history');
-        console.log('Response status:', response.status);
-        
         if (!response.ok) throw new Error('Failed to load evaluations');
         
         evaluations = await response.json();
-        console.log('Loaded evaluations:', evaluations);
         
         if (!evaluations || evaluations.length === 0) {
             document.getElementById('selectionForm').innerHTML = '<p>No evaluations found. Please run an evaluation first.</p>';

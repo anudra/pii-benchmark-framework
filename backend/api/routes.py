@@ -1,9 +1,6 @@
-# API endpoint definitions
-# Defines all REST API routes for the application
-
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Dict, Any
 import json
 from datetime import datetime
 
@@ -13,6 +10,41 @@ from ..api import models as api_models
 from ..core import validator, matcher, metrics, redaction_checker, error_analyzer, diff_generator, report_generator
 
 router = APIRouter()
+
+def _build_error_list(errors: List[db_models.Error]) -> List[Dict[str, Any]]:
+    return [{
+        "error_type": e.error_type,
+        "entity_type": e.entity_type,
+        "position_start": e.position_start,
+        "position_end": e.position_end,
+        "text": e.text,
+        "description": e.description
+    } for e in errors]
+
+def _build_evaluation_response(evaluation: db_models.Evaluation, 
+                              result: db_models.Result,
+                              errors: List[db_models.Error]) -> api_models.EvaluationResponse:
+    return api_models.EvaluationResponse(
+        id=evaluation.id,
+        timestamp=evaluation.timestamp,
+        model_name=evaluation.model_name,
+        mode=evaluation.mode,
+        metrics=api_models.MetricsResponse(
+            true_positives=result.true_positives,
+            true_negatives=result.true_negatives,
+            false_positives=result.false_positives,
+            false_negatives=result.false_negatives,
+            precision=result.precision,
+            recall=result.recall,
+            f1_score=result.f1_score,
+            accuracy=result.accuracy
+        ),
+        confusion_matrix=json.loads(result.confusion_matrix),
+        per_entity_metrics=json.loads(result.per_entity_metrics),
+        redaction_analysis=json.loads(result.redaction_analysis),
+        diff_html=result.diff_html,
+        errors=_build_error_list(errors)
+    )
 
 
 @router.post("/api/evaluate", response_model=api_models.EvaluationResponse)
@@ -113,27 +145,14 @@ async def evaluate(request: api_models.EvaluationRequest, db: Session = Depends(
     db.commit()
     db.refresh(evaluation)
     
-    # Return response
-    return api_models.EvaluationResponse(
-        id=evaluation.id,
-        timestamp=evaluation.timestamp,
-        model_name=evaluation.model_name,
-        mode=evaluation.mode,
-        metrics=api_models.MetricsResponse(**metrics_result),
-        confusion_matrix=metrics_result["confusion_matrix"],
-        per_entity_metrics=metrics_result["per_entity_metrics"],
-        redaction_analysis=redaction_analysis,
-        diff_html=diff_html,
-        errors=errors
-    )
+    result_obj = db.query(db_models.Result).filter(db_models.Result.evaluation_id == evaluation.id).first()
+    error_objs = db.query(db_models.Error).filter(db_models.Error.evaluation_id == evaluation.id).all()
+    return _build_evaluation_response(evaluation, result_obj, error_objs)
 
 
 @router.get("/api/history", response_model=List[api_models.HistoryItem])
 async def get_history(db: Session = Depends(get_db)):
-    """Get all evaluations"""
-    
     evaluations = db.query(db_models.Evaluation).order_by(db_models.Evaluation.timestamp.desc()).all()
-    
     history = []
     for eval in evaluations:
         result = db.query(db_models.Result).filter(db_models.Result.evaluation_id == eval.id).first()
@@ -141,12 +160,8 @@ async def get_history(db: Session = Depends(get_db)):
         if result and result.redaction_analysis:
             try:
                 redaction_data = json.loads(result.redaction_analysis)
-                print(f"Eval {eval.id} redaction data:", redaction_data)
-            except Exception as e:
-                print(f"Error parsing redaction data for eval {eval.id}: {e}")
-        else:
-            print(f"No redaction data for eval {eval.id}")
-        
+            except:
+                pass
         history.append(api_models.HistoryItem(
             id=eval.id,
             timestamp=eval.timestamp,
@@ -155,71 +170,31 @@ async def get_history(db: Session = Depends(get_db)):
             accuracy=result.accuracy if result else 0.0,
             redaction_analysis=redaction_data
         ))
-    
     return history
 
 
 @router.get("/api/evaluation/{eval_id}", response_model=api_models.EvaluationResponse)
 async def get_evaluation(eval_id: int, db: Session = Depends(get_db)):
-    """Get specific evaluation results"""
-    
     evaluation = db.query(db_models.Evaluation).filter(db_models.Evaluation.id == eval_id).first()
     if not evaluation:
         raise HTTPException(status_code=404, detail="Evaluation not found")
-    
     result = db.query(db_models.Result).filter(db_models.Result.evaluation_id == eval_id).first()
     errors = db.query(db_models.Error).filter(db_models.Error.evaluation_id == eval_id).all()
-    
-    error_list = [{
-        "error_type": e.error_type,
-        "entity_type": e.entity_type,
-        "position_start": e.position_start,
-        "position_end": e.position_end,
-        "text": e.text,
-        "description": e.description
-    } for e in errors]
-    
-    return api_models.EvaluationResponse(
-        id=evaluation.id,
-        timestamp=evaluation.timestamp,
-        model_name=evaluation.model_name,
-        mode=evaluation.mode,
-        metrics=api_models.MetricsResponse(
-            true_positives=result.true_positives,
-            true_negatives=result.true_negatives,
-            false_positives=result.false_positives,
-            false_negatives=result.false_negatives,
-            precision=result.precision,
-            recall=result.recall,
-            f1_score=result.f1_score,
-            accuracy=result.accuracy
-        ),
-        confusion_matrix=json.loads(result.confusion_matrix),
-        per_entity_metrics=json.loads(result.per_entity_metrics),
-        redaction_analysis=json.loads(result.redaction_analysis),
-        diff_html=result.diff_html,
-        errors=error_list
-    )
+    return _build_evaluation_response(evaluation, result, errors)
 
 
 @router.delete("/api/evaluation/{eval_id}")
 async def delete_evaluation(eval_id: int, db: Session = Depends(get_db)):
-    """Delete evaluation"""
-    
     evaluation = db.query(db_models.Evaluation).filter(db_models.Evaluation.id == eval_id).first()
     if not evaluation:
         raise HTTPException(status_code=404, detail="Evaluation not found")
-    
     db.delete(evaluation)
     db.commit()
-    
-    return {"message": "Evaluation deleted successfully"}
+    return {"message": "Evaluation deleted"}
 
 
 @router.get("/api/compare/{id1}/{id2}", response_model=api_models.ComparisonResponse)
 async def compare_evaluations(id1: int, id2: int, db: Session = Depends(get_db)):
-    """Compare two evaluations"""
-    
     eval1 = db.query(db_models.Evaluation).filter(db_models.Evaluation.id == id1).first()
     eval2 = db.query(db_models.Evaluation).filter(db_models.Evaluation.id == id2).first()
     
@@ -231,66 +206,9 @@ async def compare_evaluations(id1: int, id2: int, db: Session = Depends(get_db))
     errors1 = db.query(db_models.Error).filter(db_models.Error.evaluation_id == id1).all()
     errors2 = db.query(db_models.Error).filter(db_models.Error.evaluation_id == id2).all()
     
-    # Build evaluation responses
-    eval1_response = api_models.EvaluationResponse(
-        id=eval1.id,
-        timestamp=eval1.timestamp,
-        model_name=eval1.model_name,
-        mode=eval1.mode,
-        metrics=api_models.MetricsResponse(
-            true_positives=result1.true_positives,
-            true_negatives=result1.true_negatives,
-            false_positives=result1.false_positives,
-            false_negatives=result1.false_negatives,
-            precision=result1.precision,
-            recall=result1.recall,
-            f1_score=result1.f1_score,
-            accuracy=result1.accuracy
-        ),
-        confusion_matrix=json.loads(result1.confusion_matrix),
-        per_entity_metrics=json.loads(result1.per_entity_metrics),
-        redaction_analysis=json.loads(result1.redaction_analysis),
-        diff_html=result1.diff_html,
-        errors=[{
-            "error_type": e.error_type,
-            "entity_type": e.entity_type,
-            "position_start": e.position_start,
-            "position_end": e.position_end,
-            "text": e.text,
-            "description": e.description
-        } for e in errors1]
-    )
+    eval1_response = _build_evaluation_response(eval1, result1, errors1)
+    eval2_response = _build_evaluation_response(eval2, result2, errors2)
     
-    eval2_response = api_models.EvaluationResponse(
-        id=eval2.id,
-        timestamp=eval2.timestamp,
-        model_name=eval2.model_name,
-        mode=eval2.mode,
-        metrics=api_models.MetricsResponse(
-            true_positives=result2.true_positives,
-            true_negatives=result2.true_negatives,
-            false_positives=result2.false_positives,
-            false_negatives=result2.false_negatives,
-            precision=result2.precision,
-            recall=result2.recall,
-            f1_score=result2.f1_score,
-            accuracy=result2.accuracy
-        ),
-        confusion_matrix=json.loads(result2.confusion_matrix),
-        per_entity_metrics=json.loads(result2.per_entity_metrics),
-        redaction_analysis=json.loads(result2.redaction_analysis),
-        diff_html=result2.diff_html,
-        errors=[{
-            "error_type": e.error_type,
-            "entity_type": e.entity_type,
-            "position_start": e.position_start,
-            "position_end": e.position_end,
-            "text": e.text,
-            "description": e.description
-        } for e in errors2]
-    )
-    
-    # Calculate differences
     differences = {
         "precision_diff": round(result2.precision - result1.precision, 4),
         "recall_diff": round(result2.recall - result1.recall, 4),
@@ -307,8 +225,6 @@ async def compare_evaluations(id1: int, id2: int, db: Session = Depends(get_db))
 
 @router.get("/api/export/{eval_id}/json")
 async def export_json(eval_id: int, db: Session = Depends(get_db)):
-    """Export evaluation as JSON"""
-    
     evaluation = db.query(db_models.Evaluation).filter(db_models.Evaluation.id == eval_id).first()
     if not evaluation:
         raise HTTPException(status_code=404, detail="Evaluation not found")
@@ -330,26 +246,16 @@ async def export_json(eval_id: int, db: Session = Depends(get_db)):
         "confusion_matrix": json.loads(result.confusion_matrix),
         "per_entity_metrics": json.loads(result.per_entity_metrics),
         "redaction_analysis": json.loads(result.redaction_analysis),
-        "errors": [{
-            "error_type": e.error_type,
-            "entity_type": e.entity_type,
-            "position_start": e.position_start,
-            "position_end": e.position_end,
-            "text": e.text,
-            "description": e.description
-        } for e in errors]
+        "errors": _build_error_list(errors)
     }
     
     json_content = report_generator.generate_json_report(evaluation_data)
-    
     return Response(content=json_content, media_type="application/json",
                    headers={"Content-Disposition": f"attachment; filename=evaluation_{eval_id}.json"})
 
 
 @router.get("/api/export/{eval_id}/pdf")
 async def export_pdf(eval_id: int, db: Session = Depends(get_db)):
-    """Export evaluation as PDF"""
-    
     evaluation = db.query(db_models.Evaluation).filter(db_models.Evaluation.id == eval_id).first()
     if not evaluation:
         raise HTTPException(status_code=404, detail="Evaluation not found")
@@ -372,33 +278,18 @@ async def export_pdf(eval_id: int, db: Session = Depends(get_db)):
         "per_entity_metrics": json.loads(result.per_entity_metrics),
         "redaction_analysis": json.loads(result.redaction_analysis),
         "diff_html": result.diff_html,
-        "errors": [{
-            "error_type": e.error_type,
-            "entity_type": e.entity_type,
-            "position_start": e.position_start,
-            "position_end": e.position_end,
-            "text": e.text,
-            "description": e.description
-        } for e in errors]
+        "errors": _build_error_list(errors)
     }
     
     pdf_content = report_generator.generate_pdf_report(evaluation_data)
-    
-    # Check if it's actual PDF or HTML fallback
-    if pdf_content[:4] == b'%PDF':
-        media_type = "application/pdf"
-        filename = f"evaluation_{eval_id}.pdf"
-    else:
-        media_type = "text/html"
-        filename = f"evaluation_{eval_id}.html"
-    
+    media_type = "application/pdf" if pdf_content[:4] == b'%PDF' else "text/html"
+    filename = f"evaluation_{eval_id}.{'pdf' if media_type == 'application/pdf' else 'html'}"
     return Response(content=pdf_content, media_type=media_type,
                    headers={"Content-Disposition": f"attachment; filename={filename}"})
 
 
 @router.get("/api/dashboard/stats")
 async def get_dashboard_stats(db: Session = Depends(get_db)):
-    """Get dashboard statistics"""
     
     evaluations = db.query(db_models.Evaluation).order_by(db_models.Evaluation.timestamp.desc()).all()
     

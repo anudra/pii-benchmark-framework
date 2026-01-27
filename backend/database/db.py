@@ -1,6 +1,3 @@
-# SQLite database connection and session management
-# Handles database initialization and connection pooling
-
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session

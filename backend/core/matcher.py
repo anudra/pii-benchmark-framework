@@ -1,12 +1,6 @@
-# Entity span matching logic
-# Implements strict and lenient matching algorithms
-# Handles overlapping and nested entities
-
 from typing import List, Dict, Tuple, Any
 
-
 def calculate_iou(span1: Tuple[int, int], span2: Tuple[int, int]) -> float:
-    """Calculate Intersection over Union for two spans"""
     start1, end1 = span1
     start2, end2 = span2
     

@@ -1,6 +1,3 @@
-// History table management
-// Fetches and displays evaluation history, handles view/delete actions
-
 let selectedEvaluations = [];
 
 loadHistory();
@@ -11,7 +8,6 @@ async function loadHistory() {
         if (!response.ok) throw new Error('Failed to load history');
         
         const history = await response.json();
-        
         const tbody = document.getElementById('historyBody');
         if (history.length === 0) {
             tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No evaluations yet</td></tr>';

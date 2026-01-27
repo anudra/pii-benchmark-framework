@@ -1,6 +1,3 @@
-// Dashboard functionality
-// Loads and displays dashboard statistics and charts
-
 let trendChartInstance = null;
 let modelChartInstance = null;
 let errorChartInstance = null;
@@ -14,23 +11,18 @@ async function loadDashboard() {
         
         const data = await response.json();
         
-        // Update stats cards
         document.getElementById('totalEvaluations').textContent = data.total_evaluations;
         document.getElementById('avgDetection').textContent = (data.avg_detection_accuracy * 100).toFixed(2) + '%';
         document.getElementById('avgRedaction').textContent = (data.avg_redaction_accuracy * 100).toFixed(2) + '%';
         document.getElementById('totalErrors').textContent = data.total_errors;
         
-        // Update performance summary
         document.getElementById('bestModel').textContent = data.best_model || 'N/A';
         document.getElementById('latestEval').textContent = data.latest_eval ? 
             `#${data.latest_eval.id} - ${data.latest_eval.model_name}` : 'N/A';
         
-        // Create charts
         createTrendChart(data.trend_data);
         createModelChart(data.model_performance);
         createErrorChart(data.error_distribution);
-        
-        // Load recent evaluations
         loadRecentEvaluations(data.recent_evaluations);
         
     } catch (err) {
