@@ -371,6 +371,7 @@ async def export_pdf(eval_id: int, db: Session = Depends(get_db)):
         "confusion_matrix": json.loads(result.confusion_matrix),
         "per_entity_metrics": json.loads(result.per_entity_metrics),
         "redaction_analysis": json.loads(result.redaction_analysis),
+        "diff_html": result.diff_html,
         "errors": [{
             "error_type": e.error_type,
             "entity_type": e.entity_type,
@@ -383,8 +384,16 @@ async def export_pdf(eval_id: int, db: Session = Depends(get_db)):
     
     pdf_content = report_generator.generate_pdf_report(evaluation_data)
     
-    return Response(content=pdf_content, media_type="text/html",
-                   headers={"Content-Disposition": f"attachment; filename=evaluation_{eval_id}.html"})
+    # Check if it's actual PDF or HTML fallback
+    if pdf_content[:4] == b'%PDF':
+        media_type = "application/pdf"
+        filename = f"evaluation_{eval_id}.pdf"
+    else:
+        media_type = "text/html"
+        filename = f"evaluation_{eval_id}.html"
+    
+    return Response(content=pdf_content, media_type=media_type,
+                   headers={"Content-Disposition": f"attachment; filename={filename}"})
 
 
 @router.get("/api/dashboard/stats")
