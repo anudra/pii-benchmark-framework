@@ -23,18 +23,18 @@ app.add_middleware(
 
 app.include_router(router)
 
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
 @app.get("/")
 async def root():
     return RedirectResponse(url="/dashboard.html")
-
-frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
-if os.path.exists(frontend_path):
-    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 
 @app.on_event("startup")
 async def startup_event():
     init_db()
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
+frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
