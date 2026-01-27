@@ -218,8 +218,3 @@ function loadRecentEvaluations(evaluations) {
 function viewResults(id) {
     window.location.href = `results.html?id=${id}`;
 }
-
-function exportDashboard() {
-    alert('Dashboard export functionality coming soon!');
-    // TODO: Implement dashboard PDF export
-}
