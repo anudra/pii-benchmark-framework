@@ -10,6 +10,7 @@
     <nav>
         <h1>PII Evaluation Framework</h1>
         <div>
+            <a href="dashboard.html">Dashboard</a>
             <a href="index.html">Upload</a>
             <a href="history.html">History</a>
             <a href="compare.html">Compare</a>
@@ -48,14 +49,17 @@
             <div class="form-group">
                 <label>Evaluation Mode:</label>
                 <select id="mode">
-                    <option value="strict">Strict (exact match)</option>
-                    <option value="lenient">Lenient (IoU threshold)</option>
+                    <option value="strict">Strict (Exact Match)</option>
+                    <option value="lenient">Lenient (50%+ Overlap)</option>
                 </select>
             </div>
             
             <button type="button" onclick="previewFiles()" class="btn-secondary">Preview Files</button>
             <button type="submit" class="btn-primary">Evaluate</button>
         </form>
+        
+        <div id="loading" style="display:none; margin-top: 1rem; color: #2196F3; font-weight: bold;">Evaluating...</div>
+        <div id="error" class="error" style="display:none; margin-top: 1rem; color: #f44336; padding: 1rem; background: #ffebee; border-radius: 4px;"></div>
         
         <!-- File Preview Section -->
         <div id="previewSection" style="display: none; margin-top: 2rem;">
@@ -81,17 +85,6 @@
                 </div>
             </div>
         </div>
-    </div>
-                    <option value="strict">Strict (Exact Match)</option>
-                    <option value="lenient">Lenient (50%+ Overlap)</option>
-                </select>
-            </div>
-            
-            <button type="submit" class="btn-primary">Evaluate</button>
-        </form>
-        
-        <div id="loading" style="display:none;">Evaluating...</div>
-        <div id="error" class="error" style="display:none;"></div>
     </div>
     
     <script src="js/upload.js"></script>

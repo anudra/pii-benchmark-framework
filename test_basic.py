@@ -50,7 +50,7 @@ response = requests.post("http://127.0.0.1:8000/api/evaluate", json=test_data)
 
 if response.status_code == 200:
     result = response.json()
-    print("\n✓ SUCCESS! Evaluation completed.")
+    print("\nSUCCESS! Evaluation completed.")
     print(f"\nEvaluation ID: {result['id']}")
     print(f"Model: {result['model_name']}")
     print(f"Mode: {result['mode']}")
@@ -81,8 +81,8 @@ if response.status_code == 200:
         for item in categories['under']:
             print(f"  - {item['entity_type']}: '{item['text']}' -> '{item['redacted_as']}'")
     
-    print(f"\n✓ All features working correctly!")
+    print(f"\nAll features working correctly!")
     print(f"\nOpen http://127.0.0.1:8000/ in browser to use the web interface")
 else:
-    print(f"\n✗ ERROR: {response.status_code}")
+    print(f"\nERROR: {response.status_code}")
     print(response.text)

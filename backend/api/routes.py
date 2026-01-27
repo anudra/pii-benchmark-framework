@@ -64,7 +64,7 @@ async def evaluate(request: api_models.EvaluationRequest, db: Session = Depends(
     evaluation = db_models.Evaluation(
         model_name=request.model_name,
         mode=request.mode,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.now()
     )
     db.add(evaluation)
     db.flush()
@@ -137,12 +137,23 @@ async def get_history(db: Session = Depends(get_db)):
     history = []
     for eval in evaluations:
         result = db.query(db_models.Result).filter(db_models.Result.evaluation_id == eval.id).first()
+        redaction_data = None
+        if result and result.redaction_analysis:
+            try:
+                redaction_data = json.loads(result.redaction_analysis)
+                print(f"Eval {eval.id} redaction data:", redaction_data)
+            except Exception as e:
+                print(f"Error parsing redaction data for eval {eval.id}: {e}")
+        else:
+            print(f"No redaction data for eval {eval.id}")
+        
         history.append(api_models.HistoryItem(
             id=eval.id,
             timestamp=eval.timestamp,
             model_name=eval.model_name,
             mode=eval.mode,
-            accuracy=result.accuracy if result else 0.0
+            accuracy=result.accuracy if result else 0.0,
+            redaction_analysis=redaction_data
         ))
     
     return history
@@ -374,3 +385,142 @@ async def export_pdf(eval_id: int, db: Session = Depends(get_db)):
     
     return Response(content=pdf_content, media_type="text/html",
                    headers={"Content-Disposition": f"attachment; filename=evaluation_{eval_id}.html"})
+
+
+@router.get("/api/dashboard/stats")
+async def get_dashboard_stats(db: Session = Depends(get_db)):
+    """Get dashboard statistics"""
+    
+    evaluations = db.query(db_models.Evaluation).order_by(db_models.Evaluation.timestamp.desc()).all()
+    
+    if not evaluations:
+        return {
+            "total_evaluations": 0,
+            "avg_detection_accuracy": 0.0,
+            "avg_redaction_accuracy": 0.0,
+            "total_errors": 0,
+            "best_model": None,
+            "latest_eval": None,
+            "trend_data": [],
+            "model_performance": {},
+            "error_distribution": {
+                "false_positives": 0,
+                "false_negatives": 0,
+                "leaks": 0,
+                "over_redactions": 0,
+                "under_redactions": 0
+            },
+            "recent_evaluations": []
+        }
+    
+    # Calculate statistics
+    total_evaluations = len(evaluations)
+    total_detection = 0
+    total_redaction = 0
+    total_errors = 0
+    model_stats = {}
+    error_dist = {
+        "false_positives": 0,
+        "false_negatives": 0,
+        "leaks": 0,
+        "over_redactions": 0,
+        "under_redactions": 0
+    }
+    
+    trend_data = []
+    recent_evaluations = []
+    
+    for eval in evaluations:
+        result = db.query(db_models.Result).filter(db_models.Result.evaluation_id == eval.id).first()
+        if not result:
+            continue
+        
+        # Detection accuracy
+        detection_acc = result.accuracy
+        total_detection += detection_acc
+        
+        # Redaction accuracy
+        redaction_data = json.loads(result.redaction_analysis) if result.redaction_analysis else {}
+        redaction_acc = redaction_data.get('summary', {}).get('redaction_quality_score', 0)
+        total_redaction += redaction_acc
+        
+        # Error counts
+        error_count = db.query(db_models.Error).filter(db_models.Error.evaluation_id == eval.id).count()
+        total_errors += error_count
+        
+        # Error distribution
+        error_dist["false_positives"] += result.false_positives
+        error_dist["false_negatives"] += result.false_negatives
+        if redaction_data.get('summary'):
+            error_dist["leaks"] += redaction_data['summary'].get('leaks', 0)
+            error_dist["over_redactions"] += redaction_data['summary'].get('over_redactions', 0)
+            error_dist["under_redactions"] += redaction_data['summary'].get('under_redactions', 0)
+        
+        # Model performance
+        model_name = eval.model_name
+        if model_name not in model_stats:
+            model_stats[model_name] = {"total_detection": 0, "total_redaction": 0, "count": 0}
+        model_stats[model_name]["total_detection"] += detection_acc
+        model_stats[model_name]["total_redaction"] += redaction_acc
+        model_stats[model_name]["count"] += 1
+        
+        # Trend data (last 10 evaluations)
+        if len(trend_data) < 10:
+            trend_data.append({
+                "timestamp": eval.timestamp.isoformat(),
+                "detection_accuracy": detection_acc,
+                "redaction_accuracy": redaction_acc
+            })
+        
+        # Recent evaluations (last 5)
+        if len(recent_evaluations) < 5:
+            recent_evaluations.append({
+                "id": eval.id,
+                "model_name": eval.model_name,
+                "timestamp": eval.timestamp.isoformat(),
+                "detection_accuracy": detection_acc,
+                "redaction_accuracy": redaction_acc
+            })
+    
+    # Calculate averages
+    avg_detection = total_detection / total_evaluations if total_evaluations > 0 else 0
+    avg_redaction = total_redaction / total_evaluations if total_evaluations > 0 else 0
+    
+    # Model performance averages
+    model_performance = {}
+    for model, stats in model_stats.items():
+        model_performance[model] = {
+            "avg_detection": stats["total_detection"] / stats["count"],
+            "avg_redaction": stats["total_redaction"] / stats["count"]
+        }
+    
+    # Best performing model (by combined average)
+    best_model = None
+    best_score = 0
+    for model, perf in model_performance.items():
+        combined = (perf["avg_detection"] + perf["avg_redaction"]) / 2
+        if combined > best_score:
+            best_score = combined
+            best_model = model
+    
+    # Latest evaluation
+    latest_eval = {
+        "id": evaluations[0].id,
+        "model_name": evaluations[0].model_name
+    } if evaluations else None
+    
+    # Reverse trend data to show chronological order
+    trend_data.reverse()
+    
+    return {
+        "total_evaluations": total_evaluations,
+        "avg_detection_accuracy": avg_detection,
+        "avg_redaction_accuracy": avg_redaction,
+        "total_errors": total_errors,
+        "best_model": best_model,
+        "latest_eval": latest_eval,
+        "trend_data": trend_data,
+        "model_performance": model_performance,
+        "error_distribution": error_dist,
+        "recent_evaluations": recent_evaluations
+    }

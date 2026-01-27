@@ -7,8 +7,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from .models import Base
 
 # Database file path
-DATABASE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "database")
-os.makedirs(DATABASE_DIR, exist_ok=True)
+DATABASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DATABASE_URL = f"sqlite:///{os.path.join(DATABASE_DIR, 'evaluations.db')}"
 
 # Create engine

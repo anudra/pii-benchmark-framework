@@ -106,7 +106,7 @@ def generate_pdf_report(evaluation_data: Dict[str, Any]) -> bytes:
         </style>
     </head>
     <body>
-        <h1>📊 PII Evaluation Report</h1>
+        <h1>PII Evaluation Report</h1>
         
         <div class="metadata">
             <p><strong>Evaluation ID:</strong> {evaluation_data.get('id', 'N/A')}</p>
@@ -116,7 +116,7 @@ def generate_pdf_report(evaluation_data: Dict[str, Any]) -> bytes:
         </div>
         
         <div class="section">
-            <h2 class="detection">📍 Entity Detection Evaluation</h2>
+            <h2 class="detection">Entity Detection Evaluation</h2>
             <p class="description">Measures how accurately the model identifies PII entity positions</p>
             
             <div class="metric-grid">
@@ -153,7 +153,7 @@ def generate_pdf_report(evaluation_data: Dict[str, Any]) -> bytes:
         </div>
         
         <div class="section">
-            <h2 class="redaction">🔒 Redaction Quality Evaluation</h2>
+            <h2 class="redaction">Redaction Quality Evaluation</h2>
             <p class="description">Measures how well detected PII entities were actually redacted</p>
             
             <div class="metric-grid">
@@ -182,8 +182,8 @@ def generate_pdf_report(evaluation_data: Dict[str, Any]) -> bytes:
             <h3>Redaction Status Summary</h3>
             <table>
                 <tr><th>Status</th><th>Count</th><th>Description</th></tr>
-                <tr class="correct"><td>✓ Correct</td><td>{correct}</td><td>Fully and properly redacted</td></tr>
-                <tr class="leak"><td>✗ Leak</td><td>{leaks}</td><td>Not redacted at all - DATA LEAK!</td></tr>
+                <tr class="correct"><td>Correct</td><td>{correct}</td><td>Fully and properly redacted</td></tr>
+                <tr class="leak"><td>Leak</td><td>{leaks}</td><td>Not redacted at all - DATA LEAK!</td></tr>
                 <tr class="warning"><td>⚠ Over-redacted</td><td>{over}</td><td>More characters redacted than necessary</td></tr>
                 <tr class="warning"><td>⚠ Under-redacted</td><td>{under}</td><td>Partially visible - SECURITY RISK!</td></tr>
                 <tr class="warning"><td>⚠ Semi-redacted</td><td>{semi}</td><td>Mostly redacted but some chars visible</td></tr>

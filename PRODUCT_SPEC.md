@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Sensitive data detection and redaction systems are only useful if their **accuracy, reliability, and mistakes are measurable**.
 Organizations need a way to **quantitatively evaluate** how well their system detects sensitive data and how correctly it redacts it.
@@ -27,7 +27,7 @@ This is **NOT a PII detector**. It's a **judge / examiner** for PII detection + 
 
 ---
 
-## 🎯 Objectives
+## Objectives
 
 Design and implement a framework that:
 
@@ -85,7 +85,7 @@ User sees:
 
 ---
 
-## 📥 Inputs
+## Inputs
 
 ### 1. Original Text File (.txt)
 ```
@@ -316,7 +316,7 @@ Lists:
 
 ---
 
-## 🎯 Success Criteria
+## Success Criteria
 
 | Criterion | Target |
 |-----------|--------|

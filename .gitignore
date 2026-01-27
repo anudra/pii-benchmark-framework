@@ -15,7 +15,7 @@ build/
 *.db
 *.sqlite
 *.sqlite3
-database/evaluations.db
+evaluations.db
 
 # IDE
 .vscode/

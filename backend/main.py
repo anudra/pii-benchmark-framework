@@ -4,6 +4,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 import os
 
 from .database.db import init_db
@@ -27,6 +28,12 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(router)
+
+# Redirect root to dashboard
+@app.get("/")
+async def root():
+    """Redirect to dashboard"""
+    return RedirectResponse(url="/dashboard.html")
 
 # Serve frontend static files
 frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")

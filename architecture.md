@@ -1,4 +1,4 @@
-# 🏗️ System Architecture
+# System Architecture
 
 ## Overview
 
@@ -8,14 +8,14 @@ This is a **web-based evaluation framework** that compares PII detection + redac
 
 ---
 
-## 🎨 High-Level System Architecture
+## High-Level System Architecture
 
 ```mermaid
 graph TB
-    User([👤 User]) --> Frontend[🌐 Frontend<br/>HTML/CSS/JS]
-    Frontend --> API[⚙️ Backend API<br/>FastAPI]
-    API --> Engine[🔍 Evaluation Engine]
-    Engine --> DB[(💾 Database<br/>SQLite)]
+    User([User]) --> Frontend[Frontend<br/>HTML/CSS/JS]
+    Frontend --> API[Backend API<br/>FastAPI]
+    API --> Engine[Evaluation Engine]
+    Engine --> DB[(Database<br/>SQLite)]
     DB --> Frontend
     
     style User fill:#e3f2fd
@@ -27,37 +27,37 @@ graph TB
 
 ---
 
-## 🔄 Simple User Flow
+## Simple User Flow
 
 ```mermaid
 flowchart LR
-    A[📁 Upload Files] --> B[⚙️ Evaluate]
-    B --> C[📊 View Results]
-    C --> D[💾 Save to History]
+    A[Upload Files] --> B[Evaluate]
+    B --> C[View Results]
+    C --> D[Save to History]
     D --> E{What Next?}
-    E -->|Compare| F[🔄 Compare Models]
-    E -->|Export| G[📥 Download Report]
+    E -->|Compare| F[Compare Models]
+    E -->|Export| G[Download Report]
     E -->|New Test| A
 ```
 
 ---
 
-## 🧩 System Components
+## System Components
 
 ```mermaid
 graph TB
-    subgraph Input["📥 Input Layer"]
+    subgraph Input["Input Layer"]
         Files[Original & Redacted Files<br/>Ground Truth & Predictions]
     end
     
-    subgraph Processing["⚙️ Processing Layer"]
+    subgraph Processing["Processing Layer"]
         Validate[Validate Inputs]
         Match[Match Entities]
         Calculate[Calculate Metrics]
         Check[Check Redaction]
     end
     
-    subgraph Output["📤 Output Layer"]
+    subgraph Output["Output Layer"]
         Display[Display Results]
         Store[Store History]
         Export[Export Reports]
@@ -74,7 +74,7 @@ graph TB
 
 ---
 
-## 🔄 Evaluation Flow
+## Evaluation Flow
 
 ```mermaid
 sequenceDiagram
@@ -93,7 +93,7 @@ sequenceDiagram
 
 ---
 
-## 💾 Database Structure
+## Database Structure
 
 ```mermaid
 erDiagram
@@ -130,7 +130,7 @@ erDiagram
 
 ---
 
-## 📊 Evaluation Process Flow
+## Evaluation Process Flow
 
 ```mermaid
 flowchart TD
@@ -148,7 +148,7 @@ flowchart TD
 
 ---
 
-## 📦 Key Components
+## Key Components
 
 ### 1. Frontend Layer
 
@@ -297,11 +297,11 @@ pii-benchmark-framework/
 
 | Category | Description | Color Code |
 |----------|-------------|------------|
-| ✅ Correct | Fully masked | Green |
-| ❌ Leak | Not redacted | Red |
-| ⚠️ Over | Non-sensitive masked | Yellow |
-| 🔶 Under | Partially masked | Orange |
-| 🟡 Semi | Mixed masking | Light Orange |
+| Correct | Fully masked | Green |
+| Leak | Not redacted | Red |
+| Over | Non-sensitive masked | Yellow |
+| Under | Partially masked | Orange |
+| Semi | Mixed masking | Light Orange |
 
 ### Key Metrics
 

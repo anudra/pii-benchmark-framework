@@ -149,8 +149,8 @@ function displayRedactionMetrics(redactionAnalysis) {
     document.getElementById('redactionSummary').innerHTML = `
         <table>
             <tr><th>Status</th><th>Count</th><th>Description</th></tr>
-            <tr class="correct"><td>✓ Correct</td><td>${correct}</td><td>Fully and properly redacted</td></tr>
-            <tr class="leak"><td>✗ Leak</td><td>${leak}</td><td>Not redacted at all - DATA LEAK!</td></tr>
+            <tr class="correct"><td>Correct</td><td>${correct}</td><td>Fully and properly redacted</td></tr>
+            <tr class="leak"><td>Leak</td><td>${leak}</td><td>Not redacted at all - DATA LEAK!</td></tr>
             <tr class="over"><td>⚠ Over-redacted</td><td>${over}</td><td>More characters redacted than necessary</td></tr>
             <tr class="under"><td>⚠ Under-redacted</td><td>${under}</td><td>Partially visible - SECURITY RISK!</td></tr>
             <tr class="semi"><td>⚠ Semi-redacted</td><td>${semi}</td><td>Mostly redacted but some chars visible</td></tr>

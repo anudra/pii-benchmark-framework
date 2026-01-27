@@ -61,6 +61,7 @@ class HistoryItem(BaseModel):
     model_name: str
     mode: str
     accuracy: float
+    redaction_analysis: Optional[Dict[str, Any]] = None
 
 
 class ComparisonResponse(BaseModel):
