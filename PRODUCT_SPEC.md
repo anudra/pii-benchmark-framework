@@ -96,6 +96,34 @@ False Positives (Wrong):
 - Flagged "123-456" as PHONE (not a valid phone number)
 ```
 
+### 4. Evaluation History (SQLite Storage)
+
+**What it does:** Automatically saves every evaluation run to a local SQLite database.
+
+**Features:**
+- 📊 **View Previous Reports**: Browse all past evaluations with timestamps
+- 🔍 **Search & Filter**: Find specific runs by model name, date, or F1 score
+- ⚖️ **Compare Models**: Side-by-side comparison of different system versions
+- 📈 **Track Trends**: See how metrics improve over time
+- 💾 **Auto-Save**: No manual action needed - every run is saved
+
+**Database stores:**
+```
+- Evaluation ID (unique)
+- Timestamp
+- Model/System name
+- Overall metrics (P/R/F1)
+- Per-entity breakdown
+- Redaction quality score
+- Matching strategy used
+- Full error lists (FP/FN)
+```
+
+**Use cases:**
+- "How did model v2.1 perform compared to v2.0?"
+- "Which version had the best EMAIL detection?"
+- "Show me all evaluations from last week"
+
 ---
 
 ## Input/Output Format
@@ -189,7 +217,9 @@ False Positives (Wrong):
 
 - **Backend**: Python 3.9+
 - **UI**: Streamlit (web dashboard)
+- **Database**: SQLite (evaluation history)
 - **Deployment**: Docker
 - **Metrics**: scikit-learn
+- **Data Validation**: Pydantic
 
 ---

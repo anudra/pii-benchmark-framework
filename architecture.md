@@ -11,6 +11,7 @@ graph TB
         B[Configuration Panel]
         C[Metrics Dashboard]
         D[Error Reports]
+        PV[Previous Reports Viewer]
     end
     
     subgraph "Evaluation Engine (Python)"
@@ -18,12 +19,15 @@ graph TB
         F[Span Matcher]
         G[Metrics Calculator]
         H[Error Analyzer]
+        RE[Redaction Evaluator]
     end
     
     subgraph "Data Layer"
         I[Ground Truth JSON]
         J[Predictions JSON]
+        RD[Redacted Docs JSON]
         K[Results JSON/CSV]
+        DB[(SQLite Database)]
     end
     
     A --> E
@@ -35,7 +39,12 @@ graph TB
     H --> D
     I --> E
     J --> E
+    RD --> RE
+    RE --> G
     H --> K
+    G --> DB
+    DB --> PV
+    PV --> C
 ```
 
 ---
@@ -168,17 +177,27 @@ sequenceDiagram
     participant Val as Validator
     participant Matcher as Span Matcher
     participant Calc as Metrics Calculator
-    participant DB as Results Storage
+    participant RedEval as Redaction Evaluator
+    participant DB as SQLite Database
+    participant Export as Results Storage
 
-    User->>UI: Upload Ground Truth + Predictions
+    User->>UI: Upload Ground Truth + Predictions + Redacted Docs
     UI->>Val: Validate JSON format
     Val->>Matcher: Pass validated data
     Matcher->>Matcher: Align entities (TP/FP/FN)
     Matcher->>Calc: Send classification results
-    Calc->>Calc: Compute Precision/Recall/F1
+    Val->>RedEval: Pass redacted documents
+    RedEval->>RedEval: Check missed/over-redaction
+    RedEval->>Calc: Send redaction quality score
+    Calc->>Calc: Compute Precision/Recall/F1 + Redaction Score
+    Calc->>DB: Auto-save evaluation to SQLite
     Calc->>UI: Return metrics
     UI->>User: Display dashboard
-    UI->>DB: Export JSON/CSV report
+    UI->>Export: Export JSON/CSV report
+    User->>UI: Request Previous Reports
+    UI->>DB: Query evaluation history
+    DB->>UI: Return saved evaluations
+    UI->>User: Display comparison/trends
 ```
 
 ---
@@ -212,32 +231,41 @@ pii-benchmark-framework/
 │
 ├── evaluator/                      # Core evaluation logic
 │   ├── __init__.py
-│   ├── engine.py                   # Main orchestrator
 │   ├── span_matcher.py             # Entity matching algorithms
-│   ├── metrics.py                  # Precision/Recall/F1 calculation
-│   └── redaction_validator.py      # Check if redaction worked
+│   ├── metrics_calculator.py       # Precision/Recall/F1 calculation
+│   └── redaction_evaluator.py      # Redaction quality check
 │
-├── models/                         # Data structures
+├── models/                         # Pydantic data structures
 │   ├── __init__.py
 │   ├── ground_truth.py             # Ground truth schema
 │   ├── prediction.py               # Prediction schema
+│   ├── redaction.py                # Redacted document schema
 │   └── results.py                  # Evaluation result schema
 │
-├── utils/                          # Helper functions
+├── database/                       # SQLite storage layer
 │   ├── __init__.py
-│   ├── validators.py               # Input validation
-│   ├── file_handlers.py            # JSON/CSV I/O
-│   └── text_diff.py                # Visual diff generator
+│   ├── db_manager.py               # Database operations (CRUD)
+│   ├── schema.sql                  # Database schema definition
+│   └── evaluations.db              # SQLite database file (auto-created)
+│
+├── ui/                             # UI components
+│   ├── __init__.py
+│   ├── components.py               # Reusable widgets (charts, tables)
+│   └── utils.py                    # UI helper functions
+│
+├── utils/                          # General helper functions
+│   ├── __init__.py
+│   └── validators.py               # Input validation
 │
 ├── pages/                          # Streamlit multi-page app
-│   ├── 1_📊_Evaluation.py
-│   ├── 2_📈_Metrics.py
-│   ├── 3_🔍_Error_Analysis.py
-│   └── 4_📄_Reports.py
+│   ├── 1_📊_Current_Evaluation.py  # Run new evaluation
+│   ├── 2_📜_History.py              # View previous reports
+│   └── 3_📈_Compare.py              # Compare multiple runs
 │
 ├── data/                           # Sample datasets
 │   ├── sample_ground_truth.json
-│   └── sample_predictions.json
+│   ├── sample_predictions.json
+│   └── sample_redacted.json
 │
 ├── tests/                          # Unit tests
 │   ├── unit/
@@ -259,6 +287,8 @@ pii-benchmark-framework/
 | **Backend** | Python 3.9+ | Rich ML libraries, easy to deploy |
 | **Data Validation** | Pydantic | Type safety, auto-validation |
 | **Metrics** | scikit-learn | Industry-standard implementations |
+| **Database** | SQLite | Lightweight, serverless, perfect for local storage |
+| **Visualization** | Plotly | Interactive charts for metric trends |
 | **Charts** | Plotly | Interactive visualizations |
 | **Deployment** | Docker | Portable, consistent environment |
 
