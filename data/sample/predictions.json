@@ -7,13 +7,8 @@
     },
     {
       "entity_type": "PAN",
-      "start": 55,
-      "end": 66
-    },
-    {
-      "entity_type": "PHONE",
-      "start": 82,
-      "end": 97
+      "start": 54,
+      "end": 64
     }
   ]
 }

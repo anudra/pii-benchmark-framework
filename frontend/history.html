@@ -7,7 +7,42 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- History page: Table view of all past evaluations with view/delete actions -->
+    <nav>
+        <h1>PII Evaluation Framework</h1>
+        <div>
+            <a href="index.html">Upload</a>
+            <a href="history.html">History</a>
+            <a href="compare.html">Compare</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h2>Evaluation History</h2>
+        
+        <div id="compareSection" style="display:none; margin-bottom: 20px;">
+            <h3>Compare Evaluations</h3>
+            <p>Select two evaluations to compare:</p>
+            <button onclick="compareSelected()" class="btn-primary">Compare Selected</button>
+            <button onclick="clearSelection()" class="btn-secondary">Clear Selection</button>
+        </div>
+        
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll" /></th>
+                    <th>ID</th>
+                    <th>Timestamp</th>
+                    <th>Model Name</th>
+                    <th>Mode</th>
+                    <th>Accuracy</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody">
+                <tr><td colspan="7" style="text-align:center;">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
     
     <script src="js/history.js"></script>
 </body>

@@ -1,5 +1,5 @@
 {
-  "text": "My email is john.doe@example.com and my PAN number is ABCDE1234F.\nContact me at +91-9876543210 or visit my office.",
+  "text": "My email is john.doe@example.com and my PAN number is ABCDE1234F.",
   "entities": [
     {
       "entity_type": "EMAIL",
@@ -9,15 +9,9 @@
     },
     {
       "entity_type": "PAN",
-      "start": 55,
-      "end": 66,
+      "start": 54,
+      "end": 64,
       "text": "ABCDE1234F"
-    },
-    {
-      "entity_type": "PHONE",
-      "start": 82,
-      "end": 97,
-      "text": "+91-9876543210"
     }
   ]
 }

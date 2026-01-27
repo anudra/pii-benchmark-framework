@@ -1,3 +1,206 @@
 // Results rendering and visualization
 // Fetches evaluation results and renders charts, metrics, and diff view
 
+let evaluationId = null;
+
+// Get evaluation ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+evaluationId = urlParams.get('id');
+
+if (!evaluationId) {
+    evaluationId = localStorage.getItem('lastEvaluationId');
+}
+
+if (!evaluationId) {
+    alert('No evaluation ID found');
+    window.location.href = 'index.html';
+} else {
+    loadResults(evaluationId);
+}
+
+async function loadResults(id) {
+    try {
+        const response = await fetch(`/api/evaluation/${id}`);
+        if (!response.ok) throw new Error('Failed to load results');
+        
+        const data = await response.json();
+        
+        // Display metadata
+        document.getElementById('modelName').textContent = data.model_name;
+        document.getElementById('mode').textContent = data.mode;
+        document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleString();
+        
+        // Display metrics
+        document.getElementById('precision').textContent = (data.metrics.precision * 100).toFixed(2) + '%';
+        document.getElementById('recall').textContent = (data.metrics.recall * 100).toFixed(2) + '%';
+        document.getElementById('f1').textContent = (data.metrics.f1_score * 100).toFixed(2) + '%';
+        document.getElementById('accuracy').textContent = (data.metrics.accuracy * 100).toFixed(2) + '%';
+        
+        // Display confusion matrix
+        const cm = data.confusion_matrix;
+        document.getElementById('confusionMatrix').innerHTML = `
+            <table>
+                <tr><th>Metric</th><th>Value</th></tr>
+                <tr><td>True Positives</td><td>${cm.TP}</td></tr>
+                <tr><td>True Negatives</td><td>${cm.TN}</td></tr>
+                <tr><td>False Positives</td><td>${cm.FP}</td></tr>
+                <tr><td>False Negatives</td><td>${cm.FN}</td></tr>
+            </table>
+        `;
+        
+        // Render chart
+        const ctx = document.getElementById('metricsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Precision', 'Recall', 'F1-Score', 'Accuracy'],
+                datasets: [{
+                    label: 'Metrics (%)',
+                    data: [
+                        data.metrics.precision * 100,
+                        data.metrics.recall * 100,
+                        data.metrics.f1_score * 100,
+                        data.metrics.accuracy * 100
+                    ],
+                    backgroundColor: ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+        
+        // Display diff view
+        document.getElementById('diffView').innerHTML = data.diff_html;
+        
+        // Display redaction quality metrics
+        displayRedactionMetrics(data.redaction_analysis);
+        
+        // Display errors
+        document.getElementById('errorCount').textContent = data.errors.length;
+        const errorsList = document.getElementById('errorsList');
+        if (data.errors.length > 0) {
+            errorsList.innerHTML = '<table><tr><th>Type</th><th>Entity</th><th>Position</th><th>Description</th></tr>' +
+                data.errors.slice(0, 20).map(err => `
+                    <tr>
+                        <td>${err.error_type}</td>
+                        <td>${err.entity_type}</td>
+                        <td>${err.position_start}-${err.position_end}</td>
+                        <td>${err.description}</td>
+                    </tr>
+                `).join('') + '</table>';
+        } else {
+            errorsList.innerHTML = '<p>No errors found!</p>';
+        }
+        
+    } catch (err) {
+        alert('Error loading results: ' + err.message);
+        window.location.href = 'index.html';
+    }
+}
+
+function displayRedactionMetrics(redactionAnalysis) {
+    console.log('Redaction Analysis:', redactionAnalysis);
+    
+    // Handle the nested structure: redactionAnalysis has 'summary' and 'categories'
+    const summary = redactionAnalysis.summary || {};
+    
+    const correct = summary.correct_redactions || 0;
+    const leak = summary.leaks || 0;
+    const over = summary.over_redactions || 0;
+    const under = summary.under_redactions || 0;
+    const semi = summary.semi_redactions || 0;
+    
+    const total = summary.total_entities || 0;
+    const redactionAccuracy = total > 0 ? ((correct / total) * 100).toFixed(2) : '0.00';
+    const leakRate = total > 0 ? ((leak / total) * 100).toFixed(2) : '0.00';
+    
+    // Display metrics cards
+    document.getElementById('redactionMetricsGrid').innerHTML = `
+        <div class="metric-card" style="background-color: #e8f5e9;">
+            <h3>Redaction Accuracy</h3>
+            <p class="metric-value">${redactionAccuracy}%</p>
+            <p class="metric-label">${correct} / ${total} correctly redacted</p>
+        </div>
+        <div class="metric-card" style="background-color: ${leak > 0 ? '#ffebee' : '#e8f5e9'};">
+            <h3>Leak Rate</h3>
+            <p class="metric-value">${leakRate}%</p>
+            <p class="metric-label">${leak} unredacted entities</p>
+        </div>
+        <div class="metric-card" style="background-color: #fff3e0;">
+            <h3>Quality Issues</h3>
+            <p class="metric-value">${over + under + semi}</p>
+            <p class="metric-label">Over/Under/Semi redactions</p>
+        </div>
+        <div class="metric-card">
+            <h3>Total Entities</h3>
+            <p class="metric-value">${total}</p>
+            <p class="metric-label">Evaluated for redaction</p>
+        </div>
+    `;
+    
+    // Display redaction summary table
+    document.getElementById('redactionSummary').innerHTML = `
+        <table>
+            <tr><th>Status</th><th>Count</th><th>Description</th></tr>
+            <tr class="correct"><td>✓ Correct</td><td>${correct}</td><td>Fully and properly redacted</td></tr>
+            <tr class="leak"><td>✗ Leak</td><td>${leak}</td><td>Not redacted at all - DATA LEAK!</td></tr>
+            <tr class="over"><td>⚠ Over-redacted</td><td>${over}</td><td>More characters redacted than necessary</td></tr>
+            <tr class="under"><td>⚠ Under-redacted</td><td>${under}</td><td>Partially visible - SECURITY RISK!</td></tr>
+            <tr class="semi"><td>⚠ Semi-redacted</td><td>${semi}</td><td>Mostly redacted but some chars visible</td></tr>
+        </table>
+    `;
+    
+    // Create redaction quality chart only if there's data
+    const ctxRedaction = document.getElementById('redactionChart').getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (window.redactionChart instanceof Chart) {
+        window.redactionChart.destroy();
+    }
+    
+    // Only create chart if we have data
+    if (total > 0) {
+        window.redactionChart = new Chart(ctxRedaction, {
+            type: 'doughnut',
+            data: {
+                labels: ['Correct', 'Leak', 'Over', 'Under', 'Semi'],
+                datasets: [{
+                    data: [correct, leak, over, under, semi],
+                    backgroundColor: ['#4CAF50', '#F44336', '#FFC107', '#FF9800', '#FFB74D']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Redaction Status Distribution'
+                    }
+                }
+            }
+        });
+    } else {
+        // Show message when no data
+        ctxRedaction.canvas.parentElement.innerHTML = '<p style="text-align: center; color: #888;">No redaction data available</p>';
+    }
+}
+
+function exportJSON() {
+    window.location.href = `/api/export/${evaluationId}/json`;
+}
+
+function exportPDF() {
+    window.location.href = `/api/export/${evaluationId}/pdf`;
+}
