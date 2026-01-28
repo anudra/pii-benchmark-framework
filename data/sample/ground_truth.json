@@ -1,17 +1,95 @@
 {
-  "text": "My email is john.doe@example.com and my PAN number is ABCDE1234F.",
+  "text": "Customer Service Request - Case #2026-0128\n\nContact Information:\nName: John Michael Doe\nEmail: john.doe@example.com\nPhone: +1-555-123-4567\nSSN: 123-45-6789\nAccount Number: ACC-9876543210\n\nAdditional Contact:\nSecondary Email: jane.smith@company.org\nEmergency Phone: 555-987-6543\n\nFinancial Details:\nPAN Card: ABCDE1234F\nCredit Card: 4532-1234-5678-9010\nBank Account: 9876543210 (IFSC: HDFC0001234)\nIncome: $125,000 annually\n\nMedical Information:\nPatient ID: MED-456789\nInsurance Policy: INS-2024-7890\nBlood Type: O+\nDate of Birth: 15/03/1985\n\nNotes: The customer mentioned their spouse Sarah works at 123 Main Street, New York. Please contact them at the private number 555-0000 if urgent.\n\nCase Status: Pending Review\nInternal ID: INT-00001 (not sensitive)\nProcessing Code: PROC-XYZ (system code)\n",
   "entities": [
     {
+      "entity_type": "NAME",
+      "start": 74,
+      "end": 90,
+      "text": "John Michael Doe"
+    },
+    {
       "entity_type": "EMAIL",
-      "start": 12,
-      "end": 33,
+      "start": 99,
+      "end": 119,
       "text": "john.doe@example.com"
     },
     {
+      "entity_type": "PHONE",
+      "start": 128,
+      "end": 143,
+      "text": "+1-555-123-4567"
+    },
+    {
+      "entity_type": "SSN",
+      "start": 150,
+      "end": 161,
+      "text": "123-45-6789"
+    },
+    {
+      "entity_type": "ACCOUNT",
+      "start": 179,
+      "end": 193,
+      "text": "ACC-9876543210"
+    },
+    {
+      "entity_type": "EMAIL",
+      "start": 235,
+      "end": 257,
+      "text": "jane.smith@company.org"
+    },
+    {
+      "entity_type": "PHONE",
+      "start": 276,
+      "end": 288,
+      "text": "555-987-6543"
+    },
+    {
       "entity_type": "PAN",
-      "start": 54,
-      "end": 64,
+      "start": 322,
+      "end": 332,
       "text": "ABCDE1234F"
+    },
+    {
+      "entity_type": "CREDIT_CARD",
+      "start": 347,
+      "end": 366,
+      "text": "4532-1234-5678-9010"
+    },
+    {
+      "entity_type": "ACCOUNT",
+      "start": 383,
+      "end": 393,
+      "text": "9876543210"
+    },
+    {
+      "entity_type": "IFSC",
+      "start": 400,
+      "end": 411,
+      "text": "HDFC0001234"
+    },
+    {
+      "entity_type": "PATIENT_ID",
+      "start": 477,
+      "end": 487,
+      "text": "MED-456789"
+    },
+    {
+      "entity_type": "POLICY",
+      "start": 507,
+      "end": 520,
+      "text": "INS-2024-7890"
+    },
+    {
+      "entity_type": "DOB",
+      "start": 553,
+      "end": 563,
+      "text": "15/03/1985"
+    },
+    {
+      "entity_type": "PHONE",
+      "start": 694,
+      "end": 702,
+      "text": "555-0000"
     }
   ]
 }

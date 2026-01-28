@@ -1,14 +1,88 @@
 {
   "predictions": [
     {
+      "entity_type": "NAME",
+      "start": 74,
+      "end": 90,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
       "entity_type": "EMAIL",
-      "start": 12,
-      "end": 33
+      "start": 99,
+      "end": 119,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "PHONE",
+      "start": 128,
+      "end": 143,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "SSN",
+      "start": 150,
+      "end": 161,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "ACCOUNT",
+      "start": 179,
+      "end": 193,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "PHONE",
+      "start": 276,
+      "end": 288,
+      "comment": "TRUE POSITIVE - Correctly detected"
     },
     {
       "entity_type": "PAN",
-      "start": 54,
-      "end": 64
+      "start": 322,
+      "end": 332,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "CREDIT_CARD",
+      "start": 347,
+      "end": 366,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "ACCOUNT",
+      "start": 383,
+      "end": 393,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "IFSC",
+      "start": 400,
+      "end": 411,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "PATIENT_ID",
+      "start": 477,
+      "end": 487,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "POLICY",
+      "start": 507,
+      "end": 520,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "DOB",
+      "start": 553,
+      "end": 563,
+      "comment": "TRUE POSITIVE - Correctly detected"
+    },
+    {
+      "entity_type": "ACCOUNT",
+      "start": 759,
+      "end": 768,
+      "comment": "FALSE POSITIVE - INT-00001 is just an internal ID, not sensitive"
     }
   ]
 }

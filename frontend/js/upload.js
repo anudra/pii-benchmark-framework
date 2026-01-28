@@ -74,7 +74,8 @@ function readTextFile(file) {
 
 async function previewFiles() {
     try {
-        const files = {\n            original: document.getElementById('originalFile').files[0],
+        const files = {
+            original: document.getElementById('originalFile').files[0],
             redacted: document.getElementById('redactedFile').files[0],
             groundTruth: document.getElementById('groundTruthFile').files[0],
             predictions: document.getElementById('predictionsFile').files[0]

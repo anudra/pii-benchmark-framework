@@ -11,6 +11,11 @@ ENV/
 dist/
 build/
 
+# Environment variables (contains API keys)
+.env
+.env.local
+.env.*.local
+
 # Database
 *.db
 *.sqlite

@@ -27,6 +27,37 @@
             <p><strong>Timestamp:</strong> <span id="timestamp"></span></p>
         </div>
         
+        <!-- AI Summary Panel (Expandable) -->
+        <div id="aiSummaryPanel" class="ai-panel collapsed" style="display: none;">
+            <div class="ai-panel-header" onclick="toggleAIPanel()">
+                <span class="ai-toggle">▼</span>
+                <span class="ai-title">AI Summary</span>
+                <span id="aiQuickInfo" class="ai-quick-info"></span>
+            </div>
+            <div class="ai-panel-content">
+                <div id="aiSummaryContent">
+                    <!-- AI content will be loaded here -->
+                </div>
+                <div class="ai-actions">
+                    <button onclick="generateAISummary(true)" class="btn-secondary">Regenerate</button>
+                    <button onclick="exportAISummary()" class="btn-secondary">Export AI Report</button>
+                </div>
+            </div>
+            <div id="aiLoading" class="ai-loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Generating AI insights...</p>
+            </div>
+            <div id="aiError" class="ai-error" style="display: none;"></div>
+        </div>
+        
+        <div style="text-align: center; margin: 1rem 0;">
+            <button id="generateAIBtn" onclick="generateAISummary()" class="btn-primary" style="display: none;">
+                Generate AI Summary
+            </button>
+        </div>
+        
+        <hr style="margin: 2rem 0; border: none; border-top: 2px solid #e0e0e0;">
+        
         <!-- Entity Detection Evaluation Section -->
         <div class="evaluation-section">
             <h2 style="color: #2c3e50; border-bottom: 3px solid #4CAF50; padding-bottom: 0.5rem;">Entity Detection Evaluation</h2>

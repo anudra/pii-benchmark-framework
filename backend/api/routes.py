@@ -8,6 +8,7 @@ from ..database.db import get_db
 from ..database import models as db_models
 from ..api import models as api_models
 from ..core import validator, matcher, metrics, redaction_checker, error_analyzer, diff_generator, report_generator
+from ..services import llm_service
 
 router = APIRouter()
 
@@ -424,3 +425,83 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
         "error_distribution": error_dist,
         "recent_evaluations": recent_evaluations
     }
+
+
+@router.post("/api/evaluation/{eval_id}/generate-summary")
+async def generate_ai_summary(eval_id: int, db: Session = Depends(get_db)):
+    """Generate AI-powered summary for an evaluation"""
+    
+    # Check if LLM is enabled
+    if not llm_service.is_llm_enabled():
+        raise HTTPException(
+            status_code=503, 
+            detail="LLM service is not enabled. Configure OPENROUTER_API_KEY in .env"
+        )
+    
+    # Get evaluation
+    evaluation = db.query(db_models.Evaluation).filter(db_models.Evaluation.id == eval_id).first()
+    if not evaluation:
+        raise HTTPException(status_code=404, detail="Evaluation not found")
+    
+    # Get associated data
+    result = db.query(db_models.Result).filter(db_models.Result.evaluation_id == eval_id).first()
+    errors = db.query(db_models.Error).filter(db_models.Error.evaluation_id == eval_id).all()
+    
+    if not result:
+        raise HTTPException(status_code=404, detail="Evaluation results not found")
+    
+    # Prepare data for LLM
+    evaluation_data = {
+        "id": evaluation.id,
+        "timestamp": evaluation.timestamp,
+        "model_name": evaluation.model_name,
+        "mode": evaluation.mode,
+        "metrics": {
+            "precision": result.precision,
+            "recall": result.recall,
+            "f1_score": result.f1_score,
+            "accuracy": result.accuracy,
+            "true_positives": result.true_positives,
+            "true_negatives": result.true_negatives,
+            "false_positives": result.false_positives,
+            "false_negatives": result.false_negatives
+        },
+        "confusion_matrix": json.loads(result.confusion_matrix),
+        "per_entity_metrics": json.loads(result.per_entity_metrics),
+        "redaction_analysis": json.loads(result.redaction_analysis),
+        "errors": _build_error_list(errors)
+    }
+    
+    # Generate AI summary
+    ai_summary = llm_service.generate_ai_summary(evaluation_data)
+    
+    # Check for errors
+    if "error" in ai_summary:
+        raise HTTPException(status_code=500, detail=ai_summary.get("message", "Failed to generate AI summary"))
+    
+    # Save to database
+    result.ai_summary = json.dumps(ai_summary)
+    result.ai_summary_generated_at = datetime.now()
+    db.commit()
+    db.refresh(result)
+    
+    return ai_summary
+
+
+@router.get("/api/evaluation/{eval_id}/ai-summary")
+async def get_ai_summary(eval_id: int, db: Session = Depends(get_db)):
+    """Get existing AI summary for an evaluation"""
+    
+    result = db.query(db_models.Result).filter(db_models.Result.evaluation_id == eval_id).first()
+    
+    if not result:
+        raise HTTPException(status_code=404, detail="Evaluation not found")
+    
+    if not result.ai_summary:
+        raise HTTPException(status_code=404, detail="AI summary not generated yet")
+    
+    return {
+        "summary": json.loads(result.ai_summary),
+        "generated_at": result.ai_summary_generated_at
+    }
+

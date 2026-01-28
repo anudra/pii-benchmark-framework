@@ -106,6 +106,9 @@ async function loadResults(id) {
         // Display redaction quality metrics
         displayRedactionMetrics(data.redaction_analysis);
         
+        // Check for existing AI summary or show generate button
+        checkAISummary();
+        
         // Display errors
         document.getElementById('errorCount').textContent = data.errors.length;
         const errorsList = document.getElementById('errorsList');
@@ -228,3 +231,189 @@ function exportJSON() {
 function exportPDF() {
     window.location.href = `/api/export/${evaluationId}/pdf`;
 }
+
+// ============= AI Summary Functions =============
+
+async function checkAISummary() {
+    try {
+        const response = await fetch(`/api/evaluation/${evaluationId}/ai-summary`);
+        if (response.ok) {
+            const data = await response.json();
+            displayAISummary(data.summary);
+        } else {
+            // No AI summary exists, show generate button
+            document.getElementById('generateAIBtn').style.display = 'inline-block';
+        }
+    } catch (err) {
+        // No AI summary, show generate button
+        document.getElementById('generateAIBtn').style.display = 'inline-block';
+    }
+}
+
+async function generateAISummary(regenerate = false) {
+    const panel = document.getElementById('aiSummaryPanel');
+    const loading = document.getElementById('aiLoading');
+    const error = document.getElementById('aiError');
+    const generateBtn = document.getElementById('generateAIBtn');
+    
+    // Show panel and loading state
+    panel.style.display = 'block';
+    loading.style.display = 'block';
+    error.style.display = 'none';
+    generateBtn.style.display = 'none';
+    
+    try {
+        const response = await fetch(`/api/evaluation/${evaluationId}/generate-summary`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Failed to generate AI summary');
+        }
+        
+        const summary = await response.json();
+        loading.style.display = 'none';
+        displayAISummary(summary);
+        
+    } catch (err) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.innerHTML = `<strong>Error:</strong> ${err.message}<br><small>Make sure LLM service is enabled and API key is configured.</small>`;
+    }
+}
+
+function displayAISummary(summary) {
+    const panel = document.getElementById('aiSummaryPanel');
+    const content = document.getElementById('aiSummaryContent');
+    const quickInfo = document.getElementById('aiQuickInfo');
+    
+    // Show panel
+    panel.style.display = 'block';
+    
+    // Set quick info (collapsed state)
+    const issueCount = (summary.weaknesses?.length || 0) + 
+                      (summary.recommendations?.filter(r => r.priority === 'high').length || 0);
+    quickInfo.textContent = `Grade: ${summary.overall_grade} | Confidence: ${(summary.confidence_score * 100).toFixed(0)}% | ${issueCount} critical issues`;
+    
+    // Build detailed content
+    let html = '';
+    
+    // Overall Assessment
+    html += `
+        <div class="ai-section">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <span class="ai-grade grade-${summary.overall_grade?.toLowerCase() || 'c'}">${summary.overall_grade || 'N/A'}</span>
+                <span style="color: #666;">Confidence: ${(summary.confidence_score * 100).toFixed(0)}%</span>
+            </div>
+            <p style="font-size: 1.05rem; color: #2c3e50; line-height: 1.8;">${summary.summary || 'No summary available'}</p>
+        </div>
+    `;
+    
+    // Strengths
+    if (summary.strengths && summary.strengths.length > 0) {
+        html += `
+            <div class="ai-section">
+                <h4>Strengths</h4>
+                <ul class="ai-list">
+                    ${summary.strengths.map(s => `<li>${s}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    }
+    
+    // Weaknesses
+    if (summary.weaknesses && summary.weaknesses.length > 0) {
+        html += `
+            <div class="ai-section">
+                <h4>Weaknesses</h4>
+                <ul class="ai-list">
+                    ${summary.weaknesses.map(w => `<li>${w}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    }
+    
+    // Recommendations
+    if (summary.recommendations && summary.recommendations.length > 0) {
+        html += `
+            <div class="ai-section">
+                <h4>Recommendations</h4>
+        `;
+        
+        summary.recommendations.forEach(rec => {
+            html += `
+                <div class="ai-recommendation priority-${rec.priority}">
+                    <div style="margin-bottom: 0.5rem;">
+                        <span class="priority-badge priority-${rec.priority}">${rec.priority}</span>
+                        <span style="margin-left: 0.5rem; color: #666; font-size: 0.9rem;">${rec.category}</span>
+                    </div>
+                    <div style="font-weight: bold; color: #2c3e50; margin-bottom: 0.5rem;">${rec.recommendation}</div>
+                    <div style="color: #666; font-size: 0.95rem; margin-bottom: 0.25rem;"><strong>Why:</strong> ${rec.justification}</div>
+                    <div style="color: #666; font-size: 0.95rem;"><strong>Impact:</strong> ${rec.expected_impact}</div>
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+    }
+    
+    // Entity Insights
+    if (summary.entity_insights && Object.keys(summary.entity_insights).length > 0) {
+        html += `
+            <div class="ai-section">
+                <h4>Per-Entity Analysis</h4>
+        `;
+        
+        for (const [entityType, insight] of Object.entries(summary.entity_insights)) {
+            html += `
+                <div class="entity-insight">
+                    <strong>${entityType}:</strong> ${insight}
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+    }
+    
+    // Redaction Analysis
+    if (summary.redaction_analysis) {
+        html += `
+            <div class="ai-section">
+                <h4>Redaction Quality Assessment</h4>
+                <p style="color: #555; line-height: 1.6;">${summary.redaction_analysis}</p>
+            </div>
+        `;
+    }
+    
+    content.innerHTML = html;
+    
+    // Expand panel by default after generation
+    panel.classList.remove('collapsed');
+    
+    // Save state
+    sessionStorage.setItem(`aiPanel_${evaluationId}`, 'expanded');
+}
+
+function toggleAIPanel() {
+    const panel = document.getElementById('aiSummaryPanel');
+    panel.classList.toggle('collapsed');
+    
+    // Save state
+    const state = panel.classList.contains('collapsed') ? 'collapsed' : 'expanded';
+    sessionStorage.setItem(`aiPanel_${evaluationId}`, state);
+}
+
+function exportAISummary() {
+    // This could be extended to generate a PDF with just AI insights
+    alert('AI Summary export feature - coming soon!');
+}
+
+// Restore AI panel state from session storage
+window.addEventListener('load', () => {
+    const savedState = sessionStorage.getItem(`aiPanel_${evaluationId}`);
+    if (savedState === 'collapsed') {
+        document.getElementById('aiSummaryPanel')?.classList.add('collapsed');
+    }
+});
+

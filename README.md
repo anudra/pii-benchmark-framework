@@ -99,17 +99,35 @@ Then go to `http://localhost:8501`
 }
 ```
 
+## AI-Powered Insights
+
+Get automated analysis and recommendations using LLM:
+
+### Setup
+1. Copy `.env.example` to `.env`
+2. Add your OpenRouter API key (get one free at https://openrouter.ai)
+3. Choose a model (free options available!)
+
+```env
+LLM_ENABLED=true
+OPENROUTER_API_KEY=sk-or-v1-your-key-here
+OPENROUTER_MODEL=openai/gpt-4o-mini
+```
+
+### Features
+- Automated performance grading (A-F)
+- Strengths & weaknesses analysis
+- Prioritized recommendations (HIGH/MEDIUM/LOW)
+- Per-entity insights
+- Security-focused redaction assessment
+
+Click "Generate AI Summary" on any evaluation results page!
+
 ## Tech Stack
 
-Python, Streamlit, Pandas, scikit-learn, Plotly, Docker
-
-## Testing
-
+Python, FastAPI, SQLAlchemy, SQLite, Chart.js, OpenRouter API, Docker
 ```bash
 pytest
 ```
 
 ---
-
-**Built for:** Internship Assessment Project  
-**Duration:** 3-day sprint (Jan 27-29, 2026)

@@ -55,6 +55,10 @@ class Result(Base):
     redaction_analysis = Column(Text)  # JSON string
     diff_html = Column(Text)  # HTML content
     
+    # AI-generated summary
+    ai_summary = Column(Text, nullable=True)  # JSON string with AI insights
+    ai_summary_generated_at = Column(DateTime, nullable=True)  # When AI summary was created
+    
     evaluation = relationship("Evaluation", back_populates="results")
 
 
