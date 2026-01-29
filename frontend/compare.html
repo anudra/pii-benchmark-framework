@@ -18,26 +18,30 @@
         </div>
     </nav>
     
-    <div class="container">
-        <h2>Compare Evaluations</h2>
+    <div class="compare-container">
+        <div class="compare-header">
+            <h2>Compare Evaluations</h2>
+            <p>Side-by-side analysis of multiple evaluations</p>
+        </div>
         
         <!-- Selection Form -->
         <div id="selectionForm" class="selection-form">
+            <h3>Select Evaluations to Compare</h3>
             <div class="form-group">
-                <label for="eval1Select">Select First Evaluation:</label>
+                <label for="eval1Select">First Evaluation:</label>
                 <select id="eval1Select" required>
                     <option value="">-- Choose Evaluation 1 --</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="eval2Select">Select Second Evaluation:</label>
+                <label for="eval2Select">Second Evaluation:</label>
                 <select id="eval2Select" required>
                     <option value="">-- Choose Evaluation 2 --</option>
                 </select>
             </div>
             
-            <button type="button" onclick="compareSelected()" class="btn-primary">Compare</button>
+            <button type="button" onclick="compareSelected()" class="btn-primary">Compare Now</button>
         </div>
         
         <!-- Comparison Results (hidden initially) -->
