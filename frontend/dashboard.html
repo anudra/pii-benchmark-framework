@@ -6,164 +6,6 @@
     <title>PII Evaluation Framework - Dashboard</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .dashboard-container {
-            padding: 2rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-left: 4px solid #2196F3;
-        }
-        
-        .stat-card.detection {
-            border-left-color: #4CAF50;
-        }
-        
-        .stat-card.redaction {
-            border-left-color: #FF9800;
-        }
-        
-        .stat-card.errors {
-            border-left-color: #f44336;
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .chart-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .chart-card h3 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-            color: #333;
-        }
-        
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        
-        .action-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 1rem;
-            background: white;
-            border: 2px solid #2196F3;
-            border-radius: 8px;
-            color: #2196F3;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .action-btn:hover {
-            background: #2196F3;
-            color: white;
-        }
-        
-        .performance-summary {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-        
-        .summary-item {
-            padding: 1rem;
-            background: #f5f5f5;
-            border-radius: 4px;
-        }
-        
-        .summary-item h4 {
-            margin: 0 0 0.5rem 0;
-            color: #666;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        .summary-item .value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .recent-evaluations {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .recent-evaluations h3 {
-            margin-top: 0;
-        }
-        
-        .recent-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        
-        .recent-table th,
-        .recent-table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .recent-table th {
-            background: #f5f5f5;
-            font-weight: 600;
-        }
-        
-        .recent-table tbody tr:hover {
-            background: #f9f9f9;
-        }
-    </style>
 </head>
 <body>
     <nav>
@@ -177,38 +19,45 @@
     </nav>
     
     <div class="dashboard-container">
-        <h2>Dashboard</h2>
+        <div class="dashboard-header">
+            <h2>Dashboard</h2>
+            <p>Overview of all evaluations and system performance</p>
+        </div>
         
         <!-- Overview Stats -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Total Evaluations</div>
+                <div class="stat-label">TOTAL EVALUATIONS</div>
                 <div class="stat-value" id="totalEvaluations">-</div>
+                <p class="stat-desc">All evaluations</p>
             </div>
-            <div class="stat-card detection">
-                <div class="stat-label">Avg Detection Accuracy</div>
+            <div class="stat-card">
+                <div class="stat-label">AVG DETECTION ACCURACY</div>
                 <div class="stat-value" id="avgDetection">-</div>
+                <p class="stat-desc">Entity identification</p>
             </div>
-            <div class="stat-card redaction">
-                <div class="stat-label">Avg Redaction Accuracy</div>
+            <div class="stat-card">
+                <div class="stat-label">AVG REDACTION ACCURACY</div>
                 <div class="stat-value" id="avgRedaction">-</div>
+                <p class="stat-desc">Redaction execution</p>
             </div>
-            <div class="stat-card errors">
-                <div class="stat-label">Total Errors Found</div>
+            <div class="stat-card">
+                <div class="stat-label">TOTAL ISSUES FOUND</div>
                 <div class="stat-value" id="totalErrors">-</div>
+                <p class="stat-desc">Errors across all evals</p>
             </div>
         </div>
         
         <!-- Quick Actions -->
         <div class="quick-actions">
-            <a href="index.html" class="action-btn">
+            <a href="index.html" class="action-btn action-btn-primary">
                 New Evaluation
             </a>
-            <a href="history.html" class="action-btn">
-                View All History
+            <a href="history.html" class="action-btn action-btn-success">
+                View History
             </a>
-            <a href="compare.html" class="action-btn">
-                Compare Evaluations
+            <a href="compare.html" class="action-btn action-btn-warning">
+                Compare
             </a>
         </div>
         
@@ -217,11 +66,11 @@
             <h3>Performance Summary</h3>
             <div class="summary-grid">
                 <div class="summary-item">
-                    <h4>Best Performing Model</h4>
+                    <h4>BEST PERFORMING MODEL</h4>
                     <div class="value" id="bestModel">-</div>
                 </div>
                 <div class="summary-item">
-                    <h4>Latest Evaluation</h4>
+                    <h4>LATEST EVALUATION</h4>
                     <div class="value" id="latestEval">-</div>
                 </div>
             </div>
@@ -237,8 +86,11 @@
                 <h3>Model Performance</h3>
                 <canvas id="modelChart"></canvas>
             </div>
+        </div>
+
+        <div class="charts-grid">
             <div class="chart-card">
-                <h3>Error Type Distribution</h3>
+                <h3>Error Distribution</h3>
                 <canvas id="errorChart"></canvas>
             </div>
         </div>
@@ -246,21 +98,23 @@
         <!-- Recent Evaluations -->
         <div class="recent-evaluations">
             <h3>Recent Evaluations</h3>
-            <table class="recent-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Model</th>
-                        <th>Timestamp</th>
-                        <th>Detection</th>
-                        <th>Redaction</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="recentBody">
-                    <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="recent-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Model</th>
+                            <th>Timestamp</th>
+                            <th>Detection</th>
+                            <th>Redaction</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentBody">
+                        <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     

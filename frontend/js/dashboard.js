@@ -50,16 +50,18 @@ function createTrendChart(trendData) {
                 {
                     label: 'Detection Accuracy',
                     data: detectionData,
-                    borderColor: '#4CAF50',
-                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                    tension: 0.4
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3
                 },
                 {
                     label: 'Redaction Accuracy',
                     data: redactionData,
-                    borderColor: '#FF9800',
-                    backgroundColor: 'rgba(255, 152, 0, 0.1)',
-                    tension: 0.4
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3
                 }
             ]
         },
@@ -106,12 +108,12 @@ function createModelChart(modelPerformance) {
                 {
                     label: 'Detection Accuracy',
                     data: detectionData,
-                    backgroundColor: '#4CAF50'
+                    backgroundColor: '#10B981'
                 },
                 {
                     label: 'Redaction Accuracy',
                     data: redactionData,
-                    backgroundColor: '#FF9800'
+                    backgroundColor: '#F59E0B'
                 }
             ]
         },
@@ -159,11 +161,11 @@ function createErrorChart(errorDistribution) {
                     errorDistribution.under_redactions || 0
                 ],
                 backgroundColor: [
-                    '#FF6384',
-                    '#36A2EB',
-                    '#FFCE56',
-                    '#4BC0C0',
-                    '#9966FF'
+                    '#EF4444',
+                    '#3B82F6',
+                    '#F59E0B',
+                    '#10B981',
+                    '#8B5CF6'
                 ]
             }]
         },
@@ -197,10 +199,10 @@ function loadRecentEvaluations(evaluations) {
                 <td>${item.id}</td>
                 <td>${item.model_name}</td>
                 <td>${new Date(item.timestamp).toLocaleString()}</td>
-                <td style="color: #4CAF50; font-weight: bold;">${detectionAccuracy}%</td>
-                <td style="color: #FF9800; font-weight: bold;">${redactionAccuracy}%</td>
+                <td><span class="metric-detection" style="color: #10B981; font-weight: bold;">${detectionAccuracy}%</span></td>
+                <td><span class="metric-redaction" style="color: #F59E0B; font-weight: bold;">${redactionAccuracy}%</span></td>
                 <td>
-                    <button onclick="viewResults(${item.id})" class="btn-primary" style="padding: 0.5rem 1rem;">View</button>
+                    <a href="results.html?id=${item.id}" class="view-btn">View</a>
                 </td>
             </tr>
         `;
