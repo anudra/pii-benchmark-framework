@@ -86,22 +86,89 @@ async function loadResults(id) {
                         data.metrics.f1_score * 100,
                         data.metrics.accuracy * 100
                     ],
-                    backgroundColor: ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0']
+                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'],
+                    borderRadius: 6,
+                    borderSkipped: false
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                size: 12,
+                                weight: 600
+                            }
+                        }
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100
+                        max: 100,
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 12,
+                                weight: 500
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
         });
         
-        // Display diff view
-        document.getElementById('diffView').innerHTML = data.diff_html;
+        // Display diff view - show once with nice styling
+        try {
+            const diffContent = document.getElementById('diffContent');
+            
+            if (data.diff_html) {
+                diffContent.innerHTML = data.diff_html;
+            } else if (data.original_text && data.redacted_text) {
+                diffContent.innerHTML = `
+                    <div class="diff-section">
+                        <h4>Original vs Redacted</h4>
+                        <pre>${escapeHtml(data.original_text)}</pre>
+                        <hr>
+                        <pre>${escapeHtml(data.redacted_text)}</pre>
+                    </div>
+                `;
+            } else {
+                diffContent.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 2rem;">No diff data available</p>';
+            }
+        } catch (e) {
+            console.error('Error displaying diff:', e);
+            const diffContent = document.getElementById('diffContent');
+            diffContent.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 2rem;">Error loading diff</p>';
+        }
+        
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
         
         // Display redaction quality metrics
         displayRedactionMetrics(data.redaction_analysis);
@@ -113,17 +180,30 @@ async function loadResults(id) {
         document.getElementById('errorCount').textContent = data.errors.length;
         const errorsList = document.getElementById('errorsList');
         if (data.errors.length > 0) {
-            errorsList.innerHTML = '<table><tr><th>Type</th><th>Entity</th><th>Position</th><th>Description</th></tr>' +
-                data.errors.slice(0, 20).map(err => `
-                    <tr>
-                        <td>${err.error_type}</td>
-                        <td>${err.entity_type}</td>
-                        <td>${err.position_start}-${err.position_end}</td>
-                        <td>${err.description}</td>
-                    </tr>
-                `).join('') + '</table>';
+            errorsList.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Entity</th>
+                            <th>Position</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.errors.slice(0, 20).map(err => `
+                            <tr class="error-row-${err.error_type.toLowerCase()}">
+                                <td class="error-type">${err.error_type}</td>
+                                <td class="error-entity">${err.entity_type}</td>
+                                <td class="error-position">${err.position_start}-${err.position_end}</td>
+                                <td class="error-description">${err.description}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
         } else {
-            errorsList.innerHTML = '<p>No errors found!</p>';
+            errorsList.innerHTML = '<p>✓ No errors found! All checks passed.</p>';
         }
         
     } catch (err) {
@@ -195,23 +275,41 @@ function displayRedactionMetrics(redactionAnalysis) {
         window.redactionChart = new Chart(ctxRedaction, {
             type: 'doughnut',
             data: {
-                labels: ['Correct', 'Leak', 'Over', 'Under'],
+                labels: ['Correct', 'Leak', 'Over-redacted', 'Under-redacted'],
                 datasets: [{
                     data: [correct, leak, over, under],
-                    backgroundColor: ['#4CAF50', '#F44336', '#FFD700', '#ff9036']
+                    backgroundColor: ['#10b981', '#ef4444', '#fbbf24', '#f97316'],
+                    borderColor: ['#ffffff', '#ffffff', '#ffffff', '#ffffff'],
+                    borderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
-                aspectRatio: 2,
+                aspectRatio: 1.2,
                 plugins: {
                     legend: {
-                        position: 'right'
+                        position: 'right',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 600
+                            },
+                            padding: 25,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
                     },
                     title: {
                         display: true,
-                        text: 'Redaction Status Distribution'
+                        text: 'Redaction Status Distribution',
+                        font: {
+                            size: 16,
+                            weight: 700
+                        },
+                        padding: {
+                            bottom: 25
+                        }
                     }
                 }
             }

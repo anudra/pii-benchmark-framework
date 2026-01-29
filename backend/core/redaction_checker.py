@@ -45,6 +45,7 @@ def check_over_redaction(original: str, redacted: str, gt_entities: List[Dict[st
             end = i
             
             over_redactions.append({
+                "entity_type": "OVER_REDACTION",
                 "start": start,
                 "end": end,
                 "text": original[start:end],

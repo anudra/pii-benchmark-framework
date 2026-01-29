@@ -1,29 +1,43 @@
 from typing import Dict, List, Any
 
-def analyze_errors(match_results: Dict[str, Any], redaction_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+def analyze_errors(match_results: Dict[str, Any], redaction_analysis: Dict[str, Any], original_text: str = "") -> List[Dict[str, Any]]:
     
     errors = []
     
     # False Positives (incorrectly detected entities)
     for fp in match_results["false_positives"]:
+        # Extract actual text from original_text using start/end positions
+        extracted_text = ""
+        if original_text and "start" in fp and "end" in fp:
+            extracted_text = original_text[fp["start"]:fp["end"]]
+        else:
+            extracted_text = fp.get("text", "")
+        
         errors.append({
             "error_type": "FP",
             "entity_type": fp["entity_type"],
             "position_start": fp["start"],
             "position_end": fp["end"],
-            "text": fp.get("text", ""),
-            "description": f"False positive: '{fp.get('text', '')}' incorrectly detected as {fp['entity_type']}"
+            "text": extracted_text,
+            "description": f"FP in '{extracted_text}': Incorrectly detected as {fp['entity_type']} (Position: {fp['start']}-{fp['end']})"
         })
     
     # False Negatives (missed entities)
     for fn in match_results["false_negatives"]:
+        # Extract actual text from original_text using start/end positions
+        extracted_text = ""
+        if original_text and "start" in fn and "end" in fn:
+            extracted_text = original_text[fn["start"]:fn["end"]]
+        else:
+            extracted_text = fn.get("text", "")
+        
         errors.append({
             "error_type": "FN",
             "entity_type": fn["entity_type"],
             "position_start": fn["start"],
             "position_end": fn["end"],
-            "text": fn.get("text", ""),
-            "description": f"False negative: {fn['entity_type']} '{fn.get('text', '')}' was not detected"
+            "text": extracted_text,
+            "description": f"FN: {fn['entity_type']} '{extracted_text}' was not detected (Position: {fn['start']}-{fn['end']})"
         })
     
     # Redaction Leaks
@@ -34,7 +48,7 @@ def analyze_errors(match_results: Dict[str, Any], redaction_analysis: Dict[str, 
             "position_start": leak["start"],
             "position_end": leak["end"],
             "text": leak["text"],
-            "description": f"Redaction leak: {leak['entity_type']} '{leak['text']}' was not redacted"
+            "description": f"LEAK: {leak['entity_type']} '{leak['text']}' was not redacted (Position: {leak['start']}-{leak['end']})"
         })
     
     # Over-redactions
@@ -45,7 +59,7 @@ def analyze_errors(match_results: Dict[str, Any], redaction_analysis: Dict[str, 
             "position_start": over["start"],
             "position_end": over["end"],
             "text": over["text"],
-            "description": f"Over-redaction: Non-sensitive text '{over['text']}' was redacted as '{over['redacted_as']}'"
+            "description": f"OVER: Non-sensitive text '{over['text']}' was over-redacted as '{over['redacted_as']}'"
         })
     
     # Under-redactions
@@ -56,7 +70,7 @@ def analyze_errors(match_results: Dict[str, Any], redaction_analysis: Dict[str, 
             "position_start": under["start"],
             "position_end": under["end"],
             "text": under["text"],
-            "description": f"Under-redaction: {under['entity_type']} '{under['text']}' partially redacted as '{under['redacted_as']}'"
+            "description": f"UNDER: {under['entity_type']} '{under['text']}' was under-redacted as '{under['redacted_as']}' (SECURITY RISK!)"
         })
     
     return errors
