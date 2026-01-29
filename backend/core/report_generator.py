@@ -51,7 +51,6 @@ def generate_json_report(evaluation_data: Dict[str, Any]) -> str:
                 "leaks": redaction_summary.get("leaks", 0),
                 "over_redactions": redaction_summary.get("over_redactions", 0),
                 "under_redactions": redaction_summary.get("under_redactions", 0),
-                "semi_redactions": redaction_summary.get("semi_redactions", 0),
                 "redaction_quality_score": redaction_summary.get("redaction_quality_score", 0)
             },
             "detailed_analysis": redaction_analysis.get("categories", {})
@@ -84,7 +83,6 @@ def generate_pdf_report(evaluation_data: Dict[str, Any]) -> bytes:
     leaks = redaction_summary.get("leaks", 0)
     over = redaction_summary.get("over_redactions", 0)
     under = redaction_summary.get("under_redactions", 0)
-    semi = redaction_summary.get("semi_redactions", 0)
     
     redaction_accuracy = (correct / total_entities * 100) if total_entities > 0 else 0
     leak_rate = (leaks / total_entities * 100) if total_entities > 0 else 0
@@ -179,6 +177,13 @@ def generate_pdf_report(evaluation_data: Dict[str, Any]) -> bytes:
             .diff-container {{
                 margin: 20px 0;
                 page-break-inside: avoid;
+                border: 1px solid #ccc;
+                padding: 15px;
+                background-color: #fafafa;
+            }}
+            .diff-container div {{
+                word-wrap: break-word;
+                overflow-wrap: break-word;
             }}
         </style>
     </head>
@@ -234,7 +239,7 @@ def generate_pdf_report(evaluation_data: Dict[str, Any]) -> bytes:
         <h3>Redaction Metrics:</h3>
         <div class="metric-line"><strong>Redaction Accuracy:</strong> {redaction_accuracy:.2f}% ({correct}/{total_entities} correctly redacted)</div>
         <div class="metric-line"><strong>Leak Rate:</strong> {leak_rate:.2f}% ({leaks} unredacted entities)</div>
-        <div class="metric-line"><strong>Quality Issues:</strong> {over + under + semi} (Over/Under/Semi redactions)</div>
+        <div class="metric-line"><strong>Quality Issues:</strong> {over + under} (Over/Under redactions)</div>
         <div class="metric-line"><strong>Total Entities:</strong> {total_entities} evaluated</div>
         
         <h3>Redaction Status Summary:</h3>
@@ -263,11 +268,6 @@ def generate_pdf_report(evaluation_data: Dict[str, Any]) -> bytes:
                 <td>Under-redacted</td>
                 <td>{under}</td>
                 <td>Partially visible - SECURITY RISK!</td>
-            </tr>
-            <tr>
-                <td>Semi-redacted</td>
-                <td>{semi}</td>
-                <td>Mostly redacted but some characters visible</td>
             </tr>
         </table>
         
@@ -305,16 +305,21 @@ def _generate_errors_html(errors: list) -> str:
     if not errors:
         return '<p><em>No errors detected</em></p>'
     
-    html = "<table><tr><th>Type</th><th>Entity</th><th>Position</th><th>Text</th><th>Description</th></tr>"
+    html = '''<table style="width: 100%;">
+        <tr>
+            <th style="width: 10%;">Type</th>
+            <th style="width: 15%;">Entity</th>
+            <th style="width: 15%;">Position</th>
+            <th style="width: 60%;">Description</th>
+        </tr>'''
     for error in errors:
-        html += f"""
+        html += f'''
         <tr>
             <td>{error.get('error_type', 'Unknown')}</td>
             <td>{error.get('entity_type', 'N/A')}</td>
             <td>{error.get('position_start', 'N/A')}-{error.get('position_end', 'N/A')}</td>
-            <td>{error.get('text', 'N/A')}</td>
-            <td>{error.get('description', 'No description')}</td>
+            <td style="word-wrap: break-word;">{error.get('description', 'No description')}</td>
         </tr>
-        """
+        '''
     html += "</table>"
     return html

@@ -72,7 +72,6 @@ if response.status_code == 200:
     print(f"Leaks: {summary.get('leaks', 0)}")
     print(f"Over-redactions: {summary.get('over_redactions', 0)}")
     print(f"Under-redactions: {summary.get('under_redactions', 0)}")
-    print(f"Semi-redactions: {summary.get('semi_redactions', 0)}")
     
     # Show details
     categories = redaction.get('categories', {})

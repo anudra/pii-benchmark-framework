@@ -67,7 +67,7 @@ class Error(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     evaluation_id = Column(Integer, ForeignKey("evaluations.id"))
-    error_type = Column(String)  # "FP", "FN", "LEAK", "OVER", "UNDER", "SEMI"
+    error_type = Column(String)  # "FP", "FN", "LEAK", "OVER", "UNDER"
     entity_type = Column(String)  # "EMAIL", "PAN", "PHONE", etc.
     position_start = Column(Integer)
     position_end = Column(Integer)

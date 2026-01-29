@@ -68,7 +68,6 @@ def construct_prompt(evaluation_data: Dict[str, Any]) -> str:
 - Data Leaks: {redaction_summary.get('leaks', 0)} (CRITICAL - sensitive data not redacted)
 - Over-redactions: {redaction_summary.get('over_redactions', 0)} (non-sensitive data redacted)
 - Under-redactions: {redaction_summary.get('under_redactions', 0)} (partial redaction)
-- Semi-redactions: {redaction_summary.get('semi_redactions', 0)} (partially visible)
 - Redaction Quality Score: {redaction_summary.get('redaction_quality_score', 0):.4f}
 
 ## Error Summary
@@ -78,7 +77,6 @@ Total Errors: {len(errors)}
 - Redaction Leaks: {len([e for e in errors if e.get('error_type') == 'LEAK'])}
 - Over-redactions: {len([e for e in errors if e.get('error_type') == 'OVER'])}
 - Under-redactions: {len([e for e in errors if e.get('error_type') == 'UNDER'])}
-- Semi-redactions: {len([e for e in errors if e.get('error_type') == 'SEMI'])}
 
 ## Sample Errors (first 5)
 {json.dumps(errors[:5], indent=2) if errors else 'No errors'}

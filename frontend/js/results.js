@@ -142,7 +142,6 @@ function displayRedactionMetrics(redactionAnalysis) {
     const leak = summary.leaks || 0;
     const over = summary.over_redactions || 0;
     const under = summary.under_redactions || 0;
-    const semi = summary.semi_redactions || 0;
     
     const total = summary.total_entities || 0;
     const redactionAccuracy = total > 0 ? ((correct / total) * 100).toFixed(2) : '0.00';
@@ -162,8 +161,8 @@ function displayRedactionMetrics(redactionAnalysis) {
         </div>
         <div class="metric-card" style="background-color: #fff3e0;">
             <h3>Quality Issues</h3>
-            <p class="metric-value">${over + under + semi}</p>
-            <p class="metric-label">Over/Under/Semi redactions</p>
+            <p class="metric-value">${over + under}</p>
+            <p class="metric-label">Over/Under redactions</p>
         </div>
         <div class="metric-card">
             <h3>Total Entities</h3>
@@ -176,11 +175,10 @@ function displayRedactionMetrics(redactionAnalysis) {
     document.getElementById('redactionSummary').innerHTML = `
         <table>
             <tr><th>Status</th><th>Count</th><th>Description</th></tr>
-            <tr class="correct"><td>Correct</td><td>${correct}</td><td>Fully and properly redacted</td></tr>
-            <tr class="leak"><td>Leak</td><td>${leak}</td><td>Not redacted at all - DATA LEAK!</td></tr>
+            <tr class="correct"><td>✓ Correct</td><td>${correct}</td><td>Fully and properly redacted</td></tr>
+            <tr class="leak"><td>✗ Leak</td><td>${leak}</td><td>Not redacted at all - DATA LEAK!</td></tr>
             <tr class="over"><td>⚠ Over-redacted</td><td>${over}</td><td>More characters redacted than necessary</td></tr>
             <tr class="under"><td>⚠ Under-redacted</td><td>${under}</td><td>Partially visible - SECURITY RISK!</td></tr>
-            <tr class="semi"><td>⚠ Semi-redacted</td><td>${semi}</td><td>Mostly redacted but some chars visible</td></tr>
         </table>
     `;
     
@@ -197,10 +195,10 @@ function displayRedactionMetrics(redactionAnalysis) {
         window.redactionChart = new Chart(ctxRedaction, {
             type: 'doughnut',
             data: {
-                labels: ['Correct', 'Leak', 'Over', 'Under', 'Semi'],
+                labels: ['Correct', 'Leak', 'Over', 'Under'],
                 datasets: [{
-                    data: [correct, leak, over, under, semi],
-                    backgroundColor: ['#4CAF50', '#F44336', '#FFC107', '#FF9800', '#FFB74D']
+                    data: [correct, leak, over, under],
+                    backgroundColor: ['#4CAF50', '#F44336', '#FFD700', '#ff9036']
                 }]
             },
             options: {

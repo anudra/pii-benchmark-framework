@@ -299,9 +299,8 @@ pii-benchmark-framework/
 |----------|-------------|------------|
 | Correct | Fully masked | Green |
 | Leak | Not redacted | Red |
-| Over | Non-sensitive masked | Yellow |
-| Under | Partially masked | Orange |
-| Semi | Mixed masking | Light Orange |
+| Over | Non-sensitive masked | Bright Yellow (Gold) |
+| Under | Partially masked | Dark Orange |
 
 ### Key Metrics
 

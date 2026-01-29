@@ -1,6 +1,6 @@
 # Diff HTML generation
 # Creates color-coded HTML diff view comparing original and redacted text
-# Color scheme: Green (correct), Red (leak), Yellow (over), Orange (under/semi)
+# Color scheme: Green (correct), Red (leak), Bright Yellow (over), Dark Orange (under)
 
 from typing import List, Dict, Any
 import html
@@ -29,23 +29,17 @@ def generate_diff_html(original_text: str, redacted_text: str,
         for pos in range(item["start"], item["end"]):
             position_map[pos] = "over"
     
-    # Mark under-redactions (orange)
+    # Mark under-redactions (dark orange)
     for item in redaction_analysis["categories"]["under"]:
         for pos in range(item["start"], item["end"]):
             position_map[pos] = "under"
     
-    # Mark semi-redactions (light orange)
-    for item in redaction_analysis["categories"]["semi"]:
-        for pos in range(item["start"], item["end"]):
-            position_map[pos] = "semi"
-    
     # Color definitions
     colors = {
         "correct": "#4CAF50",     # Green
-        "leak": "#F44336",        # Red
-        "over": "#FFC107",        # Yellow
-        "under": "#FF9800",       # Orange
-        "semi": "#FFB74D"         # Light Orange
+        "leak": "#F44336",        # Red  
+        "over": "#FFD700",        # Bright Yellow (gold)
+        "under": "#ff9036"        # Dark Orange
     }
     
     # Build HTML
@@ -63,7 +57,8 @@ def generate_diff_html(original_text: str, redacted_text: str,
                 html_output += '</span>'
             if category is not None:
                 color = colors.get(category, "#000")
-                html_output += f'<span style="background-color: {color}; color: white; padding: 2px 4px; border-radius: 3px;">'
+                text_color = "#333" if category == "over" else "white"
+                html_output += f'<span style="background-color: {color}; color: {text_color}; padding: 2px 4px; border-radius: 3px;">'
             current_category = category
         
         html_output += html.escape(char)
@@ -83,7 +78,8 @@ def generate_diff_html(original_text: str, redacted_text: str,
                 html_output += '</span>'
             if category is not None:
                 color = colors.get(category, "#000")
-                html_output += f'<span style="background-color: {color}; color: white; padding: 2px 4px; border-radius: 3px;">'
+                text_color = "#333" if category == "over" else "white"
+                html_output += f'<span style="background-color: {color}; color: {text_color}; padding: 2px 4px; border-radius: 3px;">'
             current_category = category
         
         html_output += html.escape(char)
@@ -99,9 +95,8 @@ def generate_diff_html(original_text: str, redacted_text: str,
     html_output += '<strong>Legend:</strong><br/>'
     html_output += f'<span style="background-color: {colors["correct"]}; color: white; padding: 2px 8px; border-radius: 3px; margin-right: 10px;">Correct</span>'
     html_output += f'<span style="background-color: {colors["leak"]}; color: white; padding: 2px 8px; border-radius: 3px; margin-right: 10px;">Leak</span>'
-    html_output += f'<span style="background-color: {colors["over"]}; color: white; padding: 2px 8px; border-radius: 3px; margin-right: 10px;">Over-redacted</span>'
-    html_output += f'<span style="background-color: {colors["under"]}; color: white; padding: 2px 8px; border-radius: 3px; margin-right: 10px;">Under-redacted</span>'
-    html_output += f'<span style="background-color: {colors["semi"]}; color: white; padding: 2px 8px; border-radius: 3px;">Semi-redacted</span>'
+    html_output += f'<span style="background-color: {colors["over"]}; color: #333; padding: 2px 8px; border-radius: 3px; margin-right: 10px;">Over-redacted</span>'
+    html_output += f'<span style="background-color: {colors["under"]}; color: white; padding: 2px 8px; border-radius: 3px;">Under-redacted</span>'
     html_output += '</div>'
     
     html_output += '</div>'

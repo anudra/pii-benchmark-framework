@@ -59,16 +59,5 @@ def analyze_errors(match_results: Dict[str, Any], redaction_analysis: Dict[str, 
             "description": f"Under-redaction: {under['entity_type']} '{under['text']}' partially redacted as '{under['redacted_as']}'"
         })
     
-    # Semi-redactions
-    for semi in redaction_analysis["categories"]["semi"]:
-        errors.append({
-            "error_type": "SEMI",
-            "entity_type": semi["entity_type"],
-            "position_start": semi["start"],
-            "position_end": semi["end"],
-            "text": semi["text"],
-            "description": f"Semi-redaction: {semi['entity_type']} '{semi['text']}' partially visible as '{semi['redacted_as']}'"
-        })
-    
     return errors
 

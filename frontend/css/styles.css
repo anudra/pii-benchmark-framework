@@ -274,17 +274,12 @@ table tr:hover {
 }
 
 .over {
-    background-color: #FFC107;
-    color: white;
+    background-color: #FFD700;
+    color: #333;
 }
 
 .under {
-    background-color: #FF9800;
-    color: white;
-}
-
-.semi {
-    background-color: #FFB74D;
+    background-color: #FF6F00;
     color: white;
 }
 

@@ -13,17 +13,12 @@ def check_redaction_status(original: str, redacted: str, start: int, end: int) -
     if original_span == redacted_span:
         return "leak"
     
-    # Partial redaction
+    # Partial redaction - under-redacted (some characters not changed)
     changed_chars = sum(1 for i in range(len(redacted_span)) if redacted_span[i] != original_span[i])
     total_chars = len(redacted_span)
     
     if 0 < changed_chars < total_chars:
-        # Semi-redacted or under-redacted based on percentage
-        change_ratio = changed_chars / total_chars
-        if change_ratio >= 0.8:  # 80%+ changed = semi-redacted
-            return "semi"
-        else:  # Less than 80% changed = under-redacted
-            return "under"
+        return "under"  # Partially redacted = under-redacted
     
     return "unknown"
 
@@ -70,8 +65,7 @@ def analyze_redaction(original_text: str, redacted_text: str,
         "correct": [],
         "leak": [],
         "over": [],
-        "under": [],
-        "semi": []
+        "under": []
     }
     
     # Check true positives (correctly detected - check if redacted)
@@ -112,7 +106,6 @@ def analyze_redaction(original_text: str, redacted_text: str,
         "leaks": len(redaction_analysis["leak"]),
         "over_redactions": len(redaction_analysis["over"]),
         "under_redactions": len(redaction_analysis["under"]),
-        "semi_redactions": len(redaction_analysis["semi"]),
         "redaction_quality_score": round(
             len(redaction_analysis["correct"]) / total_entities if total_entities > 0 else 0.0,
             4
