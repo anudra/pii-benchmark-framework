@@ -335,7 +335,8 @@ async function checkAISummary() {
         const response = await fetch(`/api/evaluation/${evaluationId}/ai-summary`);
         if (response.ok) {
             const data = await response.json();
-            displayAISummary(data.summary);
+            // Display existing summary with panel CLOSED by default
+            displayAISummary(data.summary, true);
         } else {
             // No AI summary exists, show generate button
             document.getElementById('generateAIBtn').style.display = 'inline-block';
@@ -354,6 +355,8 @@ async function generateAISummary(regenerate = false) {
     
     // Show panel and loading state
     panel.style.display = 'block';
+    // OPEN the dropdown when generating
+    panel.classList.remove('collapsed');
     loading.style.display = 'block';
     error.style.display = 'none';
     generateBtn.style.display = 'none';
@@ -370,7 +373,8 @@ async function generateAISummary(regenerate = false) {
         
         const summary = await response.json();
         loading.style.display = 'none';
-        displayAISummary(summary);
+        // Display with panel OPEN (already opened above)
+        displayAISummary(summary, false);
         
     } catch (err) {
         loading.style.display = 'none';
@@ -379,13 +383,20 @@ async function generateAISummary(regenerate = false) {
     }
 }
 
-function displayAISummary(summary) {
+function displayAISummary(summary, keepClosed = false) {
     const panel = document.getElementById('aiSummaryPanel');
     const content = document.getElementById('aiSummaryContent');
     const quickInfo = document.getElementById('aiQuickInfo');
     
     // Show panel
     panel.style.display = 'block';
+    
+    // If keepClosed is true, keep it closed; otherwise open it
+    if (keepClosed) {
+        panel.classList.add('collapsed');
+    } else {
+        panel.classList.remove('collapsed');
+    }
     
     // Set quick info (collapsed state)
     const issueCount = (summary.weaknesses?.length || 0) + 
@@ -459,17 +470,19 @@ function displayAISummary(summary) {
         html += `
             <div class="ai-section">
                 <h4>Per-Entity Analysis</h4>
+                <div class="entity-insights-grid">
         `;
         
         for (const [entityType, insight] of Object.entries(summary.entity_insights)) {
             html += `
                 <div class="entity-insight">
-                    <strong>${entityType}:</strong> ${insight}
+                    <strong>${entityType}</strong>
+                    <div>${insight}</div>
                 </div>
             `;
         }
         
-        html += `</div>`;
+        html += `</div></div>`;
     }
     
     // Redaction Analysis
@@ -484,16 +497,27 @@ function displayAISummary(summary) {
     
     content.innerHTML = html;
     
-    // Expand panel by default after generation
-    panel.classList.remove('collapsed');
-    
     // Save state
-    sessionStorage.setItem(`aiPanel_${evaluationId}`, 'expanded');
+    const state = panel.classList.contains('collapsed') ? 'collapsed' : 'expanded';
+    sessionStorage.setItem(`aiPanel_${evaluationId}`, state);
 }
 
-function toggleAIPanel() {
+function toggleAIPanel(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
     const panel = document.getElementById('aiSummaryPanel');
-    panel.classList.toggle('collapsed');
+    if (!panel) return;
+    
+    const isCollapsed = panel.classList.contains('collapsed');
+    
+    if (isCollapsed) {
+        panel.classList.remove('collapsed');
+    } else {
+        panel.classList.add('collapsed');
+    }
     
     // Save state
     const state = panel.classList.contains('collapsed') ? 'collapsed' : 'expanded';
