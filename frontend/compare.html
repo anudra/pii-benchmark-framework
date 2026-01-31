@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PII Evaluation Framework - Compare</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav>
+        <h1>PII Evaluation Framework</h1>
+        <div>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="index.html">Upload</a>
+            <a href="history.html">History</a>
+            <a href="compare.html">Compare</a>
+        </div>
+    </nav>
+    
+    <div class="compare-container">
+        <div class="compare-header">
+            <h2>Compare Evaluations</h2>
+            <p>Side-by-side analysis of multiple evaluations</p>
+        </div>
+        
+        <!-- Selection Form -->
+        <div id="selectionForm" class="selection-form">
+            <h3>Select Evaluations to Compare</h3>
+            <div class="form-group">
+                <label for="eval1Select">First Evaluation:</label>
+                <select id="eval1Select" required>
+                    <option value="">-- Choose Evaluation 1 --</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="eval2Select">Second Evaluation:</label>
+                <select id="eval2Select" required>
+                    <option value="">-- Choose Evaluation 2 --</option>
+                </select>
+            </div>
+            
+            <button type="button" onclick="compareSelected()" class="btn-primary">Compare Now</button>
+        </div>
+        
+        <!-- Comparison Results (hidden initially) -->
+        <div id="comparisonResults" style="display: none;">
+            
+            <!-- Entity Detection Comparison -->
+            <div class="evaluation-section">
+                <h2 style="color: #2c3e50; border-bottom: 3px solid #4CAF50; padding-bottom: 0.5rem;">Entity Detection Comparison</h2>
+                <p style="color: #666; margin-bottom: 1.5rem;">Comparing detection accuracy metrics</p>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-column">
+                        <h3>Evaluation <span id="eval1Id"></span></h3>
+                        <p><strong>Model:</strong> <span id="model1"></span></p>
+                        <p><strong>Mode:</strong> <span id="mode1"></span></p>
+                        <p><strong>Timestamp:</strong> <span id="timestamp1"></span></p>
+                        <div class="metrics-list" id="metrics1"></div>
+                    </div>
+                    
+                    <div class="comparison-column">
+                        <h3>Detection Differences</h3>
+                        <div id="detectionDifferences"></div>
+                    </div>
+                    
+                    <div class="comparison-column">
+                        <h3>Evaluation <span id="eval2Id"></span></h3>
+                        <p><strong>Model:</strong> <span id="model2"></span></p>
+                        <p><strong>Mode:</strong> <span id="mode2"></span></p>
+                        <p><strong>Timestamp:</strong> <span id="timestamp2"></span></p>
+                        <div class="metrics-list" id="metrics2"></div>
+                    </div>
+                </div>
+                
+                <h3>Detection Metrics Comparison Chart</h3>
+                <canvas id="detectionChart" width="400" height="200"></canvas>
+            </div>
+            
+            <!-- Redaction Quality Comparison -->
+            <div class="evaluation-section" style="margin-top: 3rem;">
+                <h2 style="color: #2c3e50; border-bottom: 3px solid #FF9800; padding-bottom: 0.5rem;">Redaction Quality Comparison</h2>
+                <p style="color: #666; margin-bottom: 1.5rem;">Comparing redaction execution quality</p>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-column">
+                        <h3>Evaluation <span id="eval1IdRed"></span></h3>
+                        <div class="metrics-list" id="redactionMetrics1"></div>
+                    </div>
+                    
+                    <div class="comparison-column">
+                        <h3>Redaction Differences</h3>
+                        <div id="redactionDifferences"></div>
+                    </div>
+                    
+                    <div class="comparison-column">
+                        <h3>Evaluation <span id="eval2IdRed"></span></h3>
+                        <div class="metrics-list" id="redactionMetrics2"></div>
+                    </div>
+                </div>
+                
+                <h3>Redaction Quality Comparison Chart</h3>
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <canvas id="redactionComparisonChart"></canvas>
+                </div>
+            </div>
+            
+            <button onclick="resetComparison()" class="btn-secondary" style="margin-top: 2rem;">Select Different Evaluations</button>
+        </div>
+    </div>
+    
+    <script src="js/compare.js"></script>
+</body>
+</html>

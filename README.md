@@ -14,6 +14,15 @@ It calculates:
 - Overall performance score (F1)
 - What mistakes were made (false positives/negatives)
 
+## Features
+
+- **PII Detection Evaluation**: Measures precision, recall, and F1-score for PII detection systems.
+- **Error Analysis**: Identifies false positives and false negatives in predictions.
+- **Redaction Validation**: Compares redacted outputs against ground truth.
+- **Metrics Reporting**: Generates detailed reports on detection performance.
+- **Web Interface**: User-friendly dashboard for uploading files and viewing results.
+- **Extensibility**: Modular design for integrating additional evaluation metrics or models.
+
 ## Quick Start
 
 ### Option 1: Using Docker (Easiest)
@@ -24,7 +33,7 @@ cd pii-benchmark-framework
 docker-compose up --build
 ```
 
-Open `http://localhost:8501` in your browser.
+Open `http://localhost:8000` in your browser.
 
 ### Option 2: Local Setup
 
@@ -37,37 +46,38 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Then go to `http://localhost:8501`
+Then go to `http://localhost:8000`
 
-## Project Structure
-
-```
-├── app.py                  # Main Streamlit app
-├── evaluator/              # Evaluation engine
-├── models/                 # Data models
-├── utils/                  # Helper functions
-├── pages/                  # Dashboard pages
-├── data/                   # Sample datasets
-├── tests/                  # Unit tests
-├── Dockerfile              # Docker configuration
-├── docker-compose.yml      # Docker Compose setup
-└── requirements.txt        # Python dependencies
-```
 
 ## How to Use
 
 **Step 1:** Upload your files
-- Ground truth JSON (what should be detected)
-- Predictions JSON (what your system detected)
+- **Original Text File** (.txt) - The original document
+- **Redacted Text File** (.txt) - The document after redaction
+- **Ground Truth Labels** (JSON) - What sensitive data actually exists
+- **Predicted Labels** (JSON) - What your system detected
 
 **Step 2:** Pick a matching strategy
 - **Strict** - Positions must match exactly (for production testing)
 - **Lenient** - 50%+ overlap is okay (for development)
-- **Token-Level** - Matches at word level
 
 **Step 3:** Click "Run Evaluation" and view results
 
 ### Input Format
+
+**Original Text File (.txt)**
+```
+Example:
+My email is abcd@gmail.com and PAN is ABCDE1234F.
+Phone: +91-9876543210
+```
+
+**Redacted Text File (.txt)**
+```
+Example:
+My email is ************** and PAN is ************.
+Phone: **************
+```
 
 **Ground Truth:**
 ```json
@@ -88,7 +98,6 @@ Then go to `http://localhost:8501`
 **Predictions:**
 ```json
 {
-  "document_id": "doc_001",
   "predictions": [
     {
       "entity_type": "EMAIL",
@@ -99,17 +108,35 @@ Then go to `http://localhost:8501`
 }
 ```
 
+## AI-Powered Insights
+
+Get automated analysis and recommendations using LLM:
+
+### Setup
+1. Copy `.env.example` to `.env`
+2. Add your OpenRouter API key (get one free at https://openrouter.ai)
+3. Choose a model (free options available!)
+
+```env
+LLM_ENABLED=true
+OPENROUTER_API_KEY=sk-or-v1-your-key-here
+OPENROUTER_MODEL=openai/gpt-4o-mini
+```
+
+### Features
+- Automated performance grading (A-F)
+- Strengths & weaknesses analysis
+- Prioritized recommendations (HIGH/MEDIUM/LOW)
+- Per-entity insights
+- Security-focused redaction assessment
+
+Click "Generate AI Summary" on any evaluation results page!
+
 ## Tech Stack
 
-Python, Streamlit, Pandas, scikit-learn, Plotly, Docker
+Python, FastAPI, SQLAlchemy, SQLite, HTML, CSS, Javascript,  Chart.js, OpenRouter API, Docker
 
-## Testing
-
+#### To run tests
 ```bash
 pytest
 ```
-
----
-
-**Built for:** Internship Assessment Project  
-**Duration:** 3-day sprint (Jan 27-29, 2026)

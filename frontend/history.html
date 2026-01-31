@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PII Evaluation Framework - History</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav>
+        <h1>PII Evaluation Framework</h1>
+        <div>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="index.html">Upload</a>
+            <a href="history.html">History</a>
+            <a href="compare.html">Compare</a>
+        </div>
+    </nav>
+    
+    <div class="history-container">
+        <div class="history-header">
+            <h2>Evaluation History</h2>
+            <p>Track and manage all your evaluations</p>
+        </div>
+        
+        <div class="history-controls">
+            <div id="compareSection" style="display:none;">
+                <button onclick="compareSelected()" class="btn-primary">Compare Selected</button>
+                <button onclick="clearSelection()" class="btn-secondary">Clear Selection</button>
+            </div>
+        </div>
+        
+        <div class="history-table-wrapper">
+            <table id="historyTable" class="history-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;"><input type="checkbox" id="selectAll" /></th>
+                        <th>ID</th>
+                        <th>Timestamp</th>
+                        <th>Model Name</th>
+                        <th>Mode</th>
+                        <th>Detection Accuracy</th>
+                        <th>Redaction Accuracy</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr><td colspan="8" style="text-align:center; padding: 2rem;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script src="js/history.js"></script>
+</body>
+</html>

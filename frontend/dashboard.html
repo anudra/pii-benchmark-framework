@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PII Evaluation Framework - Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav>
+        <h1>PII Evaluation Framework</h1>
+        <div>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="index.html">Upload</a>
+            <a href="history.html">History</a>
+            <a href="compare.html">Compare</a>
+        </div>
+    </nav>
+    
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h2>Dashboard</h2>
+            <p>Overview of all evaluations and system performance</p>
+        </div>
+        
+        <!-- Overview Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">TOTAL EVALUATIONS</div>
+                <div class="stat-value" id="totalEvaluations">-</div>
+                <p class="stat-desc">All evaluations</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">AVG DETECTION ACCURACY</div>
+                <div class="stat-value" id="avgDetection">-</div>
+                <p class="stat-desc">Entity identification</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">AVG REDACTION ACCURACY</div>
+                <div class="stat-value" id="avgRedaction">-</div>
+                <p class="stat-desc">Redaction execution</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">TOTAL ISSUES FOUND</div>
+                <div class="stat-value" id="totalErrors">-</div>
+                <p class="stat-desc">Errors across all evals</p>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="index.html" class="action-btn action-btn-primary">
+                New Evaluation
+            </a>
+            <a href="history.html" class="action-btn action-btn-success">
+                View History
+            </a>
+            <a href="compare.html" class="action-btn action-btn-warning">
+                Compare
+            </a>
+        </div>
+        
+        <!-- Performance Summary -->
+        <div class="performance-summary">
+            <h3>Performance Summary</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <h4>BEST PERFORMING MODEL</h4>
+                    <div class="value" id="bestModel">-</div>
+                </div>
+                <div class="summary-item">
+                    <h4>LATEST EVALUATION</h4>
+                    <div class="value" id="latestEval">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Detection vs Redaction Trend</h3>
+                <canvas id="trendChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Model Performance</h3>
+                <canvas id="modelChart"></canvas>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Error Distribution</h3>
+                <canvas id="errorChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Recent Evaluations -->
+        <div class="recent-evaluations">
+            <h3>Recent Evaluations</h3>
+            <div class="table-responsive">
+                <table class="recent-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Model</th>
+                            <th>Timestamp</th>
+                            <th>Detection</th>
+                            <th>Redaction</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentBody">
+                        <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

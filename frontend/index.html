@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PII Evaluation Framework - Upload</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav>
+        <h1>PII Evaluation Framework</h1>
+        <div>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="index.html">Upload</a>
+            <a href="history.html">History</a>
+            <a href="compare.html">Compare</a>
+        </div>
+    </nav>
+    
+    <div class="upload-container">
+        <div class="upload-header">
+            <h2>Upload & Evaluate</h2>
+            <p>Benchmark your PII detection and redaction system</p>
+        </div>
+        
+        <form id="uploadForm">
+            <!-- Configuration Section -->
+            <div class="form-section">
+                <h3>Configuration</h3>
+                <div class="form-section-content">
+                    <div class="form-group">
+                        <label>Model Name <span class="optional">(optional)</span></label>
+                        <input type="text" id="modelName" placeholder="e.g., PII_Detector_v2" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Evaluation Mode</label>
+                        <select id="mode">
+                            <option value="strict">Strict (Exact character position matching)</option>
+                            <option value="lenient">Lenient (50%+ overlap allowed)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input Files Section -->
+            <div class="form-section">
+                <h3>Input Files</h3>
+                <div class="form-section-content">
+                    <div class="form-group">
+                        <div class="label-with-tooltip">
+                            <label>Original Text File <span class="file-type">(.txt)</span>
+                                <span class="tooltip-icon">ℹ️</span>
+                                <span class="tooltip-text">Upload the original unredacted document</span>
+                            </label>
+                        </div>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="originalFile" accept=".txt" required />
+                            <button type="button" class="file-btn" onclick="document.getElementById('originalFile').click()">Choose File</button>
+                            <span class="file-name" id="originalFileName">No file chosen</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="label-with-tooltip">
+                            <label>Redacted Text File <span class="file-type">(.txt)</span>
+                                <span class="tooltip-icon">ℹ️</span>
+                                <span class="tooltip-text">Upload the redacted version of the document</span>
+                            </label>
+                        </div>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="redactedFile" accept=".txt" required />
+                            <button type="button" class="file-btn" onclick="document.getElementById('redactedFile').click()">Choose File</button>
+                            <span class="file-name" id="redactedFileName">No file chosen</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="label-with-tooltip">
+                            <label>Ground Truth <span class="file-type">(JSON)</span>
+                                <span class="tooltip-icon">ℹ️</span>
+                                <span class="tooltip-text">JSON with actual PII entity positions and types</span>
+                            </label>
+                        </div>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="groundTruthFile" accept=".json" required />
+                            <button type="button" class="file-btn" onclick="document.getElementById('groundTruthFile').click()">Choose File</button>
+                            <span class="file-name" id="groundTruthFileName">No file chosen</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="label-with-tooltip">
+                            <label>Predictions <span class="file-type">(JSON)</span>
+                                <span class="tooltip-icon">ℹ️</span>
+                                <span class="tooltip-text">JSON with detected PII entities from your model</span>
+                            </label>
+                        </div>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="predictionsFile" accept=".json" required />
+                            <button type="button" class="file-btn" onclick="document.getElementById('predictionsFile').click()">Choose File</button>
+                            <span class="file-name" id="predictionsFileName">No file chosen</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="form-actions">
+                <button type="button" onclick="previewFiles()" class="btn-secondary">Preview Files</button>
+                <button type="submit" class="btn-primary">Start Evaluation</button>
+            </div>
+        </form>
+        
+        <div id="loading" class="loading-indicator" style="display:none;">
+            <div class="spinner"></div>
+            <p>Evaluating your files...</p>
+        </div>
+        
+        <div id="error" class="error" style="display:none;"></div>
+        
+        <!-- File Preview Section -->
+        <div id="previewSection" class="preview-section" style="display: none;">
+            <h3>File Preview</h3>
+            <div class="preview-grid">
+                <div class="preview-column">
+                    <h4>Original Text</h4>
+                    <pre id="previewOriginal" class="preview-box"></pre>
+                </div>
+                <div class="preview-column">
+                    <h4>Redacted Text</h4>
+                    <pre id="previewRedacted" class="preview-box"></pre>
+                </div>
+            </div>
+            <div class="preview-grid" style="margin-top: 1.5rem;">
+                <div class="preview-column">
+                    <h4>Ground Truth</h4>
+                    <pre id="previewGroundTruth" class="preview-box"></pre>
+                </div>
+                <div class="preview-column">
+                    <h4>Predictions</h4>
+                    <pre id="previewPredictions" class="preview-box"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/upload.js"></script>
+</body>
+</html>

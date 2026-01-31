@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PII Evaluation Framework - Results</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav>
+        <h1>PII Evaluation Framework</h1>
+        <div>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="index.html">Upload</a>
+            <a href="history.html">History</a>
+            <a href="compare.html">Compare</a>
+        </div>
+    </nav>
+    
+    <div class="results-container">
+        <div class="results-header">
+            <h2>Evaluation Results</h2>
+            <p>Comprehensive analysis of your PII detection system</p>
+        </div>
+        
+        <div id="metadata" class="metadata-box">
+            <p><strong>MODEL</strong> <span id="modelName">-</span></p>
+            <p><strong>MODE</strong> <span id="mode">-</span></p>
+            <p><strong>TIMESTAMP</strong> <span id="timestamp">-</span></p>
+        </div>
+        
+        <!-- AI Summary Panel (Expandable) -->
+        <div id="aiSummaryPanel" class="ai-panel collapsed" style="display: none;">
+            <div class="ai-panel-header" onclick="toggleAIPanel()">
+                <span class="ai-toggle">▼</span>
+                <span class="ai-title">AI Summary</span>
+                <span id="aiQuickInfo" class="ai-quick-info"></span>
+            </div>
+            <div class="ai-panel-content">
+                <div id="aiSummaryContent">
+                    <!-- AI content will be loaded here -->
+                </div>
+                <div class="ai-actions">
+                    <button onclick="generateAISummary(true)" class="btn-secondary">Regenerate</button>
+                </div>
+            </div>
+            <div id="aiLoading" class="ai-loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Generating AI insights...</p>
+            </div>
+            <div id="aiError" class="ai-error" style="display: none;"></div>
+        </div>
+        
+        <div style="text-align: center; margin: 2rem 0;">
+            <button id="generateAIBtn" onclick="generateAISummary()" class="btn-primary" style="display: none;">
+                Generate AI Summary
+            </button>
+        </div>
+        
+        <!-- Entity Detection Evaluation Section -->
+        <div class="evaluation-section">
+            <h2 class="section-title">Entity Detection Evaluation</h2>
+            <p class="section-description">Measures how accurately the model identifies PII entity positions</p>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>PRECISION</h3>
+                    <p class="metric-value" id="precision">-</p>
+                    <p class="metric-label">Correctness of predictions</p>
+                </div>
+                <div class="metric-card">
+                    <h3>RECALL</h3>
+                    <p class="metric-value" id="recall">-</p>
+                    <p class="metric-label">Coverage of actual PII</p>
+                </div>
+                <div class="metric-card">
+                    <h3>F1-SCORE</h3>
+                    <p class="metric-value" id="f1">-</p>
+                    <p class="metric-label">Harmonic mean</p>
+                </div>
+                <div class="metric-card">
+                    <h3>ACCURACY</h3>
+                    <p class="metric-value" id="accuracy">-</p>
+                    <p class="metric-label">Overall correctness</p>
+                </div>
+            </div>
+            
+            <h3>Detection Confusion Matrix</h3>
+            <div id="confusionMatrix"></div>
+            
+            <h3>Detection Metrics Chart</h3>
+            <canvas id="metricsChart" width="400" height="200"></canvas>
+        </div>
+        
+        <!-- Redaction Quality Evaluation Section -->
+        <div class="evaluation-section">
+            <h2 class="section-title">Redaction Quality Evaluation</h2>
+            <p class="section-description">Measures how well detected PII entities were actually redacted</p>
+            
+            <div id="redactionMetricsGrid" class="metrics-grid">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            
+            <h3>Redaction Status Summary</h3>
+            <div id="redactionSummary"></div>
+            
+            <h3>Redaction Quality Chart</h3>
+            <div class="redaction-chart-wrapper">
+                <canvas id="redactionChart"></canvas>
+            </div>
+        </div>
+        
+        <h3 class="diff-title">Color-Coded Diff View</h3>
+        <div id="diffView" class="diff-view-container">
+            <div id="diffContent" class="diff-content-single"></div>
+            <div class="diff-legend">
+                <div class="legend-item"><span class="legend-badge correct"></span>Correct</div>
+                <div class="legend-item"><span class="legend-badge leak"></span>Leak (Not redacted)</div>
+                <div class="legend-item"><span class="legend-badge over"></span>Over-redacted</div>
+                <div class="legend-item"><span class="legend-badge under"></span>Under-redacted</div>
+            </div>
+        </div>
+        
+        <h3 class="errors-title">Errors & Issues (<span id="errorCount">0</span>)</h3>
+        <div id="errorsList" class="errors-container"></div>
+        
+        <div class="actions">
+            <button onclick="exportJSON()" class="btn-primary">Export JSON</button>
+            <button onclick="exportPDF()" class="btn-primary">Export PDF</button>
+            <a href="history.html" class="btn-secondary">View History</a>
+        </div>
+    </div>
+    
+    <script src="js/results.js"></script>
+</body>
+</html>
