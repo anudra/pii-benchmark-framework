@@ -63,6 +63,23 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     }
 });
 
+// Update file name display when files are selected
+document.getElementById('originalFile').addEventListener('change', function() {
+    document.getElementById('originalFileName').textContent = this.files[0]?.name || 'No file chosen';
+});
+
+document.getElementById('redactedFile').addEventListener('change', function() {
+    document.getElementById('redactedFileName').textContent = this.files[0]?.name || 'No file chosen';
+});
+
+document.getElementById('groundTruthFile').addEventListener('change', function() {
+    document.getElementById('groundTruthFileName').textContent = this.files[0]?.name || 'No file chosen';
+});
+
+document.getElementById('predictionsFile').addEventListener('change', function() {
+    document.getElementById('predictionsFileName').textContent = this.files[0]?.name || 'No file chosen';
+});
+
 function readTextFile(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
