@@ -52,8 +52,10 @@ Then go to `http://localhost:8000`
 ## How to Use
 
 **Step 1:** Upload your files
-- Ground truth JSON (what should be detected)
-- Predictions JSON (what your system detected)
+- **Original Text File** (.txt) - The original document
+- **Redacted Text File** (.txt) - The document after redaction
+- **Ground Truth Labels** (JSON) - What sensitive data actually exists
+- **Predicted Labels** (JSON) - What your system detected
 
 **Step 2:** Pick a matching strategy
 - **Strict** - Positions must match exactly (for production testing)
@@ -62,6 +64,20 @@ Then go to `http://localhost:8000`
 **Step 3:** Click "Run Evaluation" and view results
 
 ### Input Format
+
+**Original Text File (.txt)**
+```
+Example:
+My email is abcd@gmail.com and PAN is ABCDE1234F.
+Phone: +91-9876543210
+```
+
+**Redacted Text File (.txt)**
+```
+Example:
+My email is ************** and PAN is ************.
+Phone: **************
+```
 
 **Ground Truth:**
 ```json
@@ -82,7 +98,6 @@ Then go to `http://localhost:8000`
 **Predictions:**
 ```json
 {
-  "document_id": "doc_001",
   "predictions": [
     {
       "entity_type": "EMAIL",
