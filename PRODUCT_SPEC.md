@@ -1,8 +1,8 @@
-# 🚀 Product Specification: Evaluation & Benchmarking Framework for Sensitive Data Detection and Redaction
+# Product Specification: Evaluation & Benchmarking Framework for Sensitive Data Detection and Redaction
 
 ---
 
-## 🏷️ Problem Title
+## Problem Title
 
 **Building an Evaluation & Benchmarking Framework for PII Detection and Redaction Systems**
 
@@ -17,7 +17,7 @@ This framework is an **evaluation and benchmarking tool** that measures the perf
 
 ---
 
-## 💡 What Is This?
+## What Is This?
 
 This is **NOT a PII detector**. It's a **judge / examiner** for PII detection + redaction systems.
 
@@ -42,7 +42,7 @@ Design and implement a framework that:
 
 ---
 
-## 👤 User Perspective (What Users Do)
+## User Perspective (What Users Do)
 
 ### Step 1: Upload Files
 
@@ -72,7 +72,6 @@ User sees:
   - ❌ Leaks (missed sensitive data)
   - ⚠️ Over-redacted (innocent data redacted)
   - 🔶 Under-redacted (partial redaction)
-  - 🟡 Semi-redacted (e.g., `ab**@gmail.com`)
 - Charts and graphs
 - Detailed error breakdown
 
@@ -144,7 +143,7 @@ Phone: **************
 
 ---
 
-## ⚙️ Core Features
+## Core Features
 
 ### Feature 1: Detection Evaluation
 
@@ -163,11 +162,6 @@ Phone: **************
 | **Strict** | Exact position match required | Production/compliance |
 | **Lenient** | 50%+ overlap counts as match | Development/testing |
 
-**Edge Cases Handled:**
-- Overlapping entities (e.g., email inside a URL)
-- Partial matches
-- Entity type misclassification
-- Nested entities
 
 ### Feature 2: Redaction Verification
 
@@ -186,7 +180,6 @@ Phone: **************
 | **Leak** | `abcd@gmail.com` | `abcd@gmail.com` | ❌ Missed |
 | **Over-redaction** | `pan on stove` | `*** on stove` | ⚠️ Innocent data |
 | **Under-redaction** | `abcd@gmail.com` | `abcd@****.com` | 🔶 Partial |
-| **Semi-redaction** | `abcd@gmail.com` | `****@gmail.com` | 🟡 Partial |
 
 ### Feature 3: Metrics Calculation
 
@@ -209,10 +202,10 @@ Phone: **************
   - 🟢 Green: Correctly redacted
   - 🔴 Red: Leak (missed)
   - 🟡 Yellow: Over-redacted
-  - 🟠 Orange: Under/semi-redacted
+  - 🟠 Orange: Under-redacted
 
 **Charts & Graphs:**
-- Confusion matrix heatmap
+- Confusion matrix
 - Precision-Recall-F1 bar charts
 - Per-entity performance breakdown
 - Redaction quality pie chart
@@ -223,7 +216,7 @@ Phone: **************
 - Table view showing all past evaluations
 - Columns:
   - ID (unique identifier)
-  - Timestamp (24 Jan 2026 10:20:36 format)
+  - Timestamp
   - Model Name (user-provided or "Default")
   - Evaluation Mode (Strict/Lenient)
   - Overall Accuracy
@@ -236,6 +229,7 @@ Phone: **************
   - Computed metrics
   - Error analysis results
   - Timestamps and metadata
+  - I summary
 
 ### Feature 6: Comparison
 
@@ -244,8 +238,6 @@ Phone: **************
 - Side-by-side comparison showing:
   - Metric differences (Precision, Recall, F1)
   - Improvement/degradation indicators
-  - Per-entity performance comparison
-  - Confusion matrix comparison
   - Visual charts showing differences
 
 ### Feature 7: Export Functionality
@@ -272,11 +264,12 @@ Phone: **************
 
 ---
 
-## 📤 Outputs
+## Outputs
 
 ### 1. Evaluation Scorecard
 
 Display on dashboard:
+- AI Summary
 - Overall Metrics
 - Per-Entity Breakdown
 - Confusion Matrix
@@ -285,8 +278,8 @@ Display on dashboard:
 ### 2. Error Report
 
 Lists:
-- False Positives (with examples)
-- False Negatives (with examples)
+- False Positives
+- False Negatives
 - Misclassified entities
 - Redaction errors
 
@@ -294,7 +287,6 @@ Lists:
 
 - Charts and graphs
 - Color-coded diff view
-- Heatmaps
 
 ### 4. Exportable Reports
 
@@ -303,16 +295,17 @@ Lists:
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Component | Technology | Reason |
 |-----------|------------|--------|
-| **Frontend** | HTML/CSS | Clean, simple UI |
+| **Frontend** | HTML/CSS, JS | Clean, simple UI |
 | **Backend** | FastAPI | Modern, async, fast, auto-docs |
 | **Database** | SQLite | Simple, file-based, no setup |
 | **DevOps** | Docker | Easy deployment |
 | **Metrics** | scikit-learn | Industry-standard metrics |
 | **Visualization** | Chart.js | Lightweight charts |
+| **LLM functionality** | OpenRouter | Free usage, vast no.of models |
 
 ---
 
@@ -329,19 +322,18 @@ Lists:
 
 ---
 
-## 🚫 What's Out of Scope (MVP)
+## What's Out of Scope (MVP)
 
 - Multi-file batch processing
-- Real-time API
 - Multi-language support
 - OCR/PDF parsing (text already extracted)
 - Advanced ML model training
 
 ---
 
-## 🌟 Bonus Features (Suggested)
+## Bonus Features
 
-After MVP, consider adding:
+After MVP, These are the features that can be done in future:
 - Confidence threshold analysis
 - ROC curves / AUC scores
 - Batch evaluation (multiple files at once)
@@ -350,5 +342,15 @@ After MVP, consider adding:
 - Email notifications for completed evaluations
 - Team collaboration features
 - Version control for models
+
+---
+
+## Long-term Vision
+
+This framework could evolve into:
+- [x]**SaaS Platform**: Multi-tenant evaluation service
+- [x]**Enterprise Tool**: Integration with GDPR compliance systems
+- [x]**Research Tool**: Academic benchmarking for PII detection
+- [x]**Marketplace**: Compare commercial PII detection APIs
 
 ---

@@ -206,7 +206,7 @@ flowchart TD
 
 ---
 
-## 📁 Project File Structure
+## Project File Structure
 
 ```
 pii-benchmark-framework/
@@ -240,7 +240,8 @@ pii-benchmark-framework/
 │       └── helpers.py               # Common helper functions
 │
 ├── frontend/                        # Frontend application
-│   ├── index.html                   # Upload page (main entry)
+|   ├── dashboard.html               # dashboard page (main entry)
+│   ├── index.html                   # Upload page
 │   ├── results.html                 # Evaluation results display
 │   ├── history.html                 # Evaluation history table
 │   ├── compare.html                 # Model comparison page
@@ -249,6 +250,7 @@ pii-benchmark-framework/
 │   │   └── styles.css               # Global styles
 │   │
 │   └── js/                          # JavaScript modules
+|       ├── dashboard.js             # dashboard data handling
 │       ├── upload.js                # File upload & form handling
 │       ├── results.js               # Results rendering & charts
 │       ├── history.js               # History table management
@@ -256,11 +258,9 @@ pii-benchmark-framework/
 │
 ├── tests/                           # Test suite
 │   ├── __init__.py
-│   ├── test_validator.py            # Validator tests
-│   ├── test_matcher.py              # Span matcher tests
-│   ├── test_metrics.py              # Metrics calculation tests
-│   ├── test_redaction.py            # Redaction checker tests
-│   └── test_api.py                  # API endpoint tests
+│   ├── unit/                        # Unit tests
+│   ├── component/                   # Component Integration tests
+│   ├── e2e/                         # End-to-End flow tests
 │
 ├── data/                            # Sample & test data
 │   └── sample/                      # Sample evaluation files
@@ -269,9 +269,7 @@ pii-benchmark-framework/
 │       ├── ground_truth.json        # Sample ground truth labels
 │       └── predictions.json         # Sample prediction labels
 │
-├── database/                        # Database storage
-│   └── evaluations.db               # SQLite database file
-│
+├── evaluations.db               # SQLite database file
 ├── Dockerfile                       # Docker image definition
 ├── docker-compose.yml               # Docker Compose configuration
 ├── requirements.txt                 # Python dependencies
@@ -284,7 +282,7 @@ pii-benchmark-framework/
 
 ---
 
-## 🎨 Design Highlights
+## Design Highlights
 
 ### Evaluation Modes
 
@@ -311,7 +309,7 @@ pii-benchmark-framework/
 
 ---
 
-## 🔧 Technology Stack
+## Technology Stack
 
 ### Core Technologies
 
@@ -345,11 +343,11 @@ chart.js (via CDN)
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 ```mermaid
 graph LR
-    User([👤 User]) -->|localhost:8000| Docker[🐳 Docker Container]
+    User([User]) -->|localhost:8000| Docker[ Docker Container]
     Docker --> App[FastAPI App]
     App --> Files[Static Files]
     App --> DB[(Database)]

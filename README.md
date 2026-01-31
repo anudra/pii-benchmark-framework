@@ -14,6 +14,15 @@ It calculates:
 - Overall performance score (F1)
 - What mistakes were made (false positives/negatives)
 
+## Features
+
+- **PII Detection Evaluation**: Measures precision, recall, and F1-score for PII detection systems.
+- **Error Analysis**: Identifies false positives and false negatives in predictions.
+- **Redaction Validation**: Compares redacted outputs against ground truth.
+- **Metrics Reporting**: Generates detailed reports on detection performance.
+- **Web Interface**: User-friendly dashboard for uploading files and viewing results.
+- **Extensibility**: Modular design for integrating additional evaluation metrics or models.
+
 ## Quick Start
 
 ### Option 1: Using Docker (Easiest)
@@ -24,7 +33,7 @@ cd pii-benchmark-framework
 docker-compose up --build
 ```
 
-Open `http://localhost:8501` in your browser.
+Open `http://localhost:8000` in your browser.
 
 ### Option 2: Local Setup
 
@@ -37,22 +46,8 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Then go to `http://localhost:8501`
+Then go to `http://localhost:8000`
 
-## Project Structure
-
-```
-├── app.py                  # Main Streamlit app
-├── evaluator/              # Evaluation engine
-├── models/                 # Data models
-├── utils/                  # Helper functions
-├── pages/                  # Dashboard pages
-├── data/                   # Sample datasets
-├── tests/                  # Unit tests
-├── Dockerfile              # Docker configuration
-├── docker-compose.yml      # Docker Compose setup
-└── requirements.txt        # Python dependencies
-```
 
 ## How to Use
 
@@ -63,7 +58,6 @@ Then go to `http://localhost:8501`
 **Step 2:** Pick a matching strategy
 - **Strict** - Positions must match exactly (for production testing)
 - **Lenient** - 50%+ overlap is okay (for development)
-- **Token-Level** - Matches at word level
 
 **Step 3:** Click "Run Evaluation" and view results
 
@@ -125,9 +119,9 @@ Click "Generate AI Summary" on any evaluation results page!
 
 ## Tech Stack
 
-Python, FastAPI, SQLAlchemy, SQLite, Chart.js, OpenRouter API, Docker
+Python, FastAPI, SQLAlchemy, SQLite, HTML, CSS, Javascript,  Chart.js, OpenRouter API, Docker
+
+#### To run tests
 ```bash
 pytest
 ```
-
----
